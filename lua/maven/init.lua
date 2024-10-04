@@ -103,4 +103,43 @@ function maven.kill_running_job()
   end
 end
 
+function maven.create_project()
+  -- Solicitar o groupId ao usuário
+  vim.ui.input({ prompt = "Enter groupId (default: com.newproject): " }, function(groupId)
+    -- Se groupId for vazio ou nil, use o valor padrão "com.newproject"
+    groupId = groupId == nil or groupId == "" and "com.newproject" or groupId
+
+    -- Solicitar o artifactId ao usuário
+    vim.ui.input({ prompt = "Enter artifactId (default: newproject): " }, function(artifactId)
+      -- Se artifactId for vazio ou nil, use o valor padrão "newproject"
+      artifactId = artifactId == nil or artifactId == "" and "newproject" or artifactId
+
+      -- Solicitar o archetypeArtifactId ao usuário
+      vim.ui.input(
+        { prompt = "Enter archetypeArtifactId (default: maven-archetype-quickstart): " },
+        function(archetypeArtifactId)
+          -- Se archetypeArtifactId for vazio ou nil, use o valor padrão "maven-archetype-quickstart"
+          archetypeArtifactId = archetypeArtifactId == nil
+            or archetypeArtifactId == "" and "maven-archetype-quickstart"
+            or archetypeArtifactId
+
+          -- Construir o comando Maven com os valores inseridos ou padrões
+          local command = {
+            cmd = {
+              "archetype:generate",
+              "-DgroupId=" .. groupId,
+              "-DartifactId=" .. artifactId,
+              "-DarchetypeArtifactId=" .. archetypeArtifactId,
+              "-DinteractiveMode=false",
+            },
+          }
+
+          -- Executar o comando Maven
+          maven.execute_command(command)
+        end
+      )
+    end)
+  end)
+end
+
 return maven
