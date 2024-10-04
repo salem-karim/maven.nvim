@@ -103,39 +103,35 @@ function maven.kill_running_job()
   end
 end
 
+-- Função para criar um novo projeto Maven interativamente
 function maven.create_project()
-  -- Solicitar o groupId ao usuário
-  vim.ui.input({ prompt = "Enter groupId (default: com.newproject): " }, function(groupId)
-    -- Se groupId for vazio ou nil, use o valor padrão "com.newproject"
-    groupId = groupId == nil or groupId == "" and "com.newproject" or groupId
+  -- Definir valores padrão
+  local default_archetype = "maven-archetype-quickstart"
+  local default_group_id = "com.newproject"
+  local default_artifact_id = "newproject"
 
-    -- Solicitar o artifactId ao usuário
-    vim.ui.input({ prompt = "Enter artifactId (default: newproject): " }, function(artifactId)
-      -- Se artifactId for vazio ou nil, use o valor padrão "newproject"
-      artifactId = artifactId == nil or artifactId == "" and "newproject" or artifactId
+  -- Pedir entradas interativas
+  vim.ui.input({ prompt = "Enter groupId: (default: " .. default_group_id .. ")" }, function(groupId)
+    groupId = groupId ~= "" and groupId or default_group_id
 
-      -- Solicitar o archetypeArtifactId ao usuário
+    vim.ui.input({ prompt = "Enter artifactId: (default: " .. default_artifact_id .. ")" }, function(artifactId)
+      artifactId = artifactId ~= "" and artifactId or default_artifact_id
+
       vim.ui.input(
-        { prompt = "Enter archetypeArtifactId (default: maven-archetype-quickstart): " },
+        { prompt = "Enter archetypeArtifactId: (default: " .. default_archetype .. ")" },
         function(archetypeArtifactId)
-          -- Se archetypeArtifactId for vazio ou nil, use o valor padrão "maven-archetype-quickstart"
-          archetypeArtifactId = archetypeArtifactId == nil
-            or archetypeArtifactId == "" and "maven-archetype-quickstart"
-            or archetypeArtifactId
+          archetypeArtifactId = archetypeArtifactId ~= "" and archetypeArtifactId or default_archetype
 
-          -- Construir o comando Maven com os valores inseridos ou padrões
-          local command = {
-            cmd = {
-              "archetype:generate",
-              "-DgroupId=" .. groupId,
-              "-DartifactId=" .. artifactId,
-              "-DarchetypeArtifactId=" .. archetypeArtifactId,
-              "-DinteractiveMode=false",
-            },
+          -- Preparar o comando Maven para criar o projeto
+          local cmd = {
+            "archetype:generate",
+            "-DgroupId=" .. groupId,
+            "-DartifactId=" .. artifactId,
+            "-DarchetypeArtifactId=" .. archetypeArtifactId,
           }
 
           -- Executar o comando Maven
-          maven.execute_command(command)
+          maven.execute_command({ cmd = cmd })
         end
       )
     end)
