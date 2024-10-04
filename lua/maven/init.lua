@@ -3,6 +3,7 @@ local View = require("maven.view")
 local commands = require("maven.commands")
 local config = require("maven.config")
 local uv = vim.loop
+local is_creating_project = false
 
 local view
 local job
@@ -56,8 +57,11 @@ function maven.execute_command(command)
   end
 
   local cwd = get_cwd()
+  if is_creating_project then
+    vim.notify("Project creation is already in progress.")
+  end
 
-  if not has_build_file(cwd) then
+  if not has_build_file(cwd) and not is_creating_project then
     vim.notify("no pom.xml file found under " .. cwd, vim.log.levels.ERROR)
     return
   end
@@ -105,6 +109,7 @@ end
 
 -- Função para criar um novo projeto Maven interativamente
 function maven.create_project()
+  is_creating_project = true
   -- Definir valores padrão
   local default_archetype = "maven-archetype-quickstart"
   local default_group_id = "com.newproject"
