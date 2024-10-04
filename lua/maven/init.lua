@@ -9,6 +9,7 @@ local view
 local job
 
 local function has_build_file(cwd)
+  is_creating_project = false
   return vim.fn.findfile("pom.xml", cwd) ~= ""
 end
 
