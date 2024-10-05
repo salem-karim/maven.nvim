@@ -96,27 +96,18 @@ function maven.execute_command(command)
 
   local cwd = get_cwd()
 
-  if command.cmd[1] == "archetype:generate" then
-    if has_build_file(cwd) then
-      vim.notify(
-        "there is a pom.xml file that indicates, that there is a maven project in the directory " .. cwd,
-        vim.log.levels.ERROR
-      )
-      return
-    else
-      maven.create_project()
-    end
-  end
-  vim.notify("command.cmd[1]: " .. tostring(command.cmd[1]), vim.log.levels.INFO)
-  -- Se o comando não for "archetype:generate" e não houver um pom.xml, exibe o erro
-  if command.cmd[1] ~= "archetype:generate" then
-    if not has_build_file(cwd) then
-      vim.notify("no pom.xml file found under " .. cwd, vim.log.levels.ERROR)
-      return
-    end
-  else
-    -- Se tudo estiver correto, executa o comando
-    maven.run_command(command)
+  if not has_build_file(cwd) and command.cmd[1] ~= "archetype:generate" then
+    vim.notify("no pom.xml file found under " .. cwd, vim.log.levels.ERROR)
+    return
+  elseif has_build_file(cwd) and command.cmd[1] == "archetype:generate" then
+    vim.notify(
+      "there is a pom.xml file that indicates, that there is a maven project in the directory " .. cwd,
+      vim.log.levels.ERROR
+    )
+    return
+  elseif not has_build_file(cwd) and command.cmd[1] == "archetype:generate" then
+    maven.create_project()
+    return
   end
 
   maven.kill_running_job()
@@ -155,7 +146,6 @@ end
 
 function maven.kill_running_job()
   if job and job.pid then
-    ---@diagnostic disable-next-line: undefined-field
     uv.kill(job.pid, 15)
     job = nil
   end
