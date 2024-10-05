@@ -108,7 +108,7 @@ function maven.execute_command(command)
       return
     end
   end
-
+  vim.notify("command.cmd[1]: " .. tostring(command.cmd[1]), vim.log.levels.INFO)
   -- Se o comando não for "create" e não houver um pom.xml, exibe o erro
   if command.cmd[1] ~= "create" then
     if not has_build_file(cwd) then
