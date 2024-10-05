@@ -83,6 +83,7 @@ function maven.create_project()
           },
           cwd = cwd, -- Usar o diretório atual para criar o projeto
         })
+        maven.run_command()
       end)
     end)
   end)
