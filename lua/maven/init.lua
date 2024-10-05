@@ -94,16 +94,18 @@ function maven.execute_command(command)
     return
   end
   local cwd = get_cwd()
-  if command.cmd[1] == "create" then
-    vim.notify("command.cmd[1]: " .. tostring(command.cmd[1]), vim.log.levels.INFO)
-
-    maven.create_project() -- Correção aqui
-    return
-  end
+  -- if command.cmd[1] == "create" then
+  --   vim.notify("command.cmd[1]: " .. tostring(command.cmd[1]), vim.log.levels.INFO)
+  --
+  --   maven.create_project() -- Correção aqui
+  --   return
+  -- end
 
   if not has_build_file(cwd) then
-    vim.notify("no pom.xml file found under " .. cwd, vim.log.levels.ERROR)
-    return
+    if command.cmd[1] ~= "archetype:generate" then
+      vim.notify("no pom.xml file found under " .. cwd, vim.log.levels.ERROR)
+      return
+    end
   end
 
   maven.kill_running_job()
