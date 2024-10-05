@@ -64,14 +64,18 @@ function maven.create_project()
   local cwd = get_cwd() -- Usaremos este cwd ao criar o projeto
 
   -- Solicitar os valores ou usar os padrões
+
   vim.ui.input({ prompt = "GroupId: (default: " .. default_group_id .. ")" }, function(groupId)
-    groupId = groupId or default_group_id
+    -- Verifica se o valor inserido é nil ou vazio, e aplica o padrão se necessário
+    groupId = (groupId ~= nil and groupId ~= "") and groupId or default_group_id
 
     vim.ui.input({ prompt = "ArtifactId: (default: " .. default_artifact_id .. ")" }, function(artifactId)
-      artifactId = artifactId or default_artifact_id
+      -- Verifica se o valor inserido é nil ou vazio, e aplica o padrão se necessário
+      artifactId = (artifactId ~= nil and artifactId ~= "") and artifactId or default_artifact_id
 
       vim.ui.input({ prompt = "ArchetypeId: (default: " .. default_archetype_id .. ")" }, function(archetypeId)
-        archetypeId = archetypeId or default_archetype_id
+        -- Verifica se o valor inserido é nil ou vazio, e aplica o padrão se necessário
+        archetypeId = (archetypeId ~= nil and archetypeId ~= "") and archetypeId or default_archetype_id
 
         -- Executar o comando Maven para criar o projeto no diretório cwd
         maven.execute_command({
