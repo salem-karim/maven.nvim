@@ -101,8 +101,8 @@ function maven.execute_command(command)
   --   return
   -- end
 
-  if not has_build_file(cwd) then
-    if command.cmd[1] ~= "archetype:generate" then
+  if command.cmd[1] ~= "archetype:generate" then
+    if not has_build_file(cwd) then
       vim.notify("no pom.xml file found under " .. cwd, vim.log.levels.ERROR)
       return
     end
