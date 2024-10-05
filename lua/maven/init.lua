@@ -51,7 +51,7 @@ function maven.to_command(str)
 end
 
 -- Função para criar um novo projeto Maven
-function maven.create_project()
+function maven.create_project(command)
   local default_group_id = "com.javaexample"
   local default_artifact_id = "javaexample"
   local default_archetype_id = "maven-archetype-quickstart"
@@ -83,7 +83,7 @@ function maven.create_project()
           },
           cwd = cwd, -- Usar o diretório atual para criar o projeto
         })
-        maven.run_command()
+        maven.run_command(command)
       end)
     end)
   end)
