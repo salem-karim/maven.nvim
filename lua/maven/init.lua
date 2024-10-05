@@ -107,7 +107,8 @@ function maven.execute_command(command)
     return
   elseif not has_build_file(cwd) and command.cmd[1] == "archetype:generate" then
     maven.create_project()
-    return
+  elseif has_build_file(cwd) and command.cmd[1] ~= "archetype:generate" then
+    maven.run_command(command)
   end
 
   maven.kill_running_job()
