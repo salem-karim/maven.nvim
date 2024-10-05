@@ -51,7 +51,7 @@ function maven.to_command(str)
 end
 
 -- Função para criar um novo projeto Maven
-function maven.create_project(command)
+function maven.create_project()
   local default_group_id = "com.javaexample"
   local default_artifact_id = "javaexample"
   local default_archetype_id = "maven-archetype-quickstart"
@@ -83,7 +83,6 @@ function maven.create_project(command)
           },
           cwd = cwd, -- Usar o diretório atual para criar o projeto
         })
-        maven.run_command(command)
       end)
     end)
   end)
@@ -96,6 +95,11 @@ function maven.execute_command(command)
   end
 
   local cwd = get_cwd()
+
+  if command.cmd[1] == "archetype:generate" then
+    maven.create_project()
+    return
+  end
 
   if not has_build_file(cwd) and command.cmd[1] ~= "archetype:generate" then
     vim.notify("no pom.xml file found under " .. cwd, vim.log.levels.ERROR)
