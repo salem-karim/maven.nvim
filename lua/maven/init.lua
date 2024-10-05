@@ -97,21 +97,18 @@ function maven.execute_command(command)
   local cwd = get_cwd()
 
   if command.cmd[1] == "create" then
-    maven.create_project()
-    return
-  end
-
-  if has_build_file(cwd) and command.cmd[1] == "create" then
-    vim.notify(
-      "there is a pom.xml file that indicates, that there is a maven project in the directory " .. cwd,
-      vim.log.levels.ERROR
-    )
-    return
-  end
-
-  if not has_build_file(cwd) and not command.cmd[1] == "create" then
+    if has_build_file(cwd) then
+      vim.notify(
+        "there is a pom.xml file that indicates, that there is a maven project in the directory " .. cwd,
+        vim.log.levels.ERROR
+      )
+    else
+      maven.create_project()
+    end
+  elseif not has_build_file(cwd) then
     vim.notify("no pom.xml file found under " .. cwd, vim.log.levels.ERROR)
-    return
+  else
+    maven.run_command(command)
   end
 
   maven.kill_running_job()
@@ -150,6 +147,7 @@ end
 
 function maven.kill_running_job()
   if job and job.pid then
+    ---@diagnostic disable-next-line: undefined-field
     uv.kill(job.pid, 15)
     job = nil
   end
