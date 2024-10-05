@@ -98,7 +98,7 @@ function maven.execute_command(command)
   local cwd = get_cwd()
 
   if command.cmd[1] == "create" then
-    create_maven_project()
+    maven.create_project()
     return
   end
 
