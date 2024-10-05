@@ -115,6 +115,7 @@ function maven.execute_command(command)
         "there is a pom.xml file that indicates, that there is a maven project in the directory " .. cwd,
         vim.log.levels.ERROR
       )
+      return
     else
       maven.create_project() -- Correção aqui
       return
