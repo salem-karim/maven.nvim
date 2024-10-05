@@ -96,10 +96,10 @@ function maven.execute_command(command)
 
   local cwd = get_cwd()
 
-  -- if command.cmd[1] == "create" then
-  --   maven.create_project()
-  --   return
-  -- end
+  if command.cmd[1] == "create" then
+    maven.create_project()
+    return
+  end
 
   if has_build_file(cwd) and command.cmd[1] == "create" then
     vim.notify(
