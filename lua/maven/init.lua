@@ -27,6 +27,12 @@ end
 
 function maven.commands()
   local prompt = "Execute maven goal (" .. vim.fn.fnamemodify(vim.fn.getcwd(), ":t") .. ")"
+
+  -- Se não há pom.xml, adiciona a opção de criar um projeto Maven
+  if not has_build_file(get_cwd()) then
+    table.insert(commands, { cmd = { "create" }, desc = "Create Maven Project" })
+  end
+
   vim.ui.select(commands, {
     prompt = prompt,
     format_item = function(item)
@@ -49,6 +55,40 @@ function maven.to_command(str)
   return { cmd = cmd }
 end
 
+-- Função para criar um novo projeto Maven
+function maven.create_project()
+  local default_group_id = "com.javaexample"
+  local default_artifact_id = "javaexample"
+  local default_archetype_id = "maven-archetype-quickstart"
+
+  local cwd = get_cwd() -- Usaremos este cwd ao criar o projeto
+
+  -- Solicitar os valores ou usar os padrões
+  vim.ui.input({ prompt = "GroupId: (default: " .. default_group_id .. ")" }, function(groupId)
+    groupId = groupId or default_group_id
+
+    vim.ui.input({ prompt = "ArtifactId: (default: " .. default_artifact_id .. ")" }, function(artifactId)
+      artifactId = artifactId or default_artifact_id
+
+      vim.ui.input({ prompt = "ArchetypeId: (default: " .. default_archetype_id .. ")" }, function(archetypeId)
+        archetypeId = archetypeId or default_archetype_id
+
+        -- Executar o comando Maven para criar o projeto no diretório cwd
+        maven.execute_command({
+          cmd = {
+            "archetype:generate",
+            "-DgroupId=" .. groupId,
+            "-DartifactId=" .. artifactId,
+            "-DarchetypeArtifactId=" .. archetypeId,
+            "-DinteractiveMode=false",
+          },
+          cwd = cwd, -- Usar o diretório atual para criar o projeto
+        })
+      end)
+    end)
+  end)
+end
+
 function maven.execute_command(command)
   if command == nil then
     vim.notify("No maven command")
@@ -57,7 +97,12 @@ function maven.execute_command(command)
 
   local cwd = get_cwd()
 
-  if not has_build_file(cwd) then
+  if command.cmd[1] == "create" then
+    create_maven_project()
+    return
+  end
+
+  if not has_build_file(cwd) and not command.cmd[1] == "create" then
     vim.notify("no pom.xml file found under " .. cwd, vim.log.levels.ERROR)
     return
   end

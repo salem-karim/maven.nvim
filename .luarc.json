@@ -1,0 +1,5 @@
+{
+    "diagnostics.globals": [
+        "create_maven_project"
+    ]
+}
