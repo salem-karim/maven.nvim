@@ -93,7 +93,7 @@ function maven.execute_command(command)
     vim.notify("No maven command")
     return
   end
-
+  vim.notify("command.cmd[1]: " .. tostring(command.cmd[1]), vim.log.levels.INFO)
   local cwd = get_cwd()
   if command.cmd[1] == "create" then
     maven.create_project() -- Correção aqui
