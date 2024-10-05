@@ -89,6 +89,8 @@ function maven.create_project()
 end
 
 function maven.execute_command(command)
+  vim.notify("command.cmd[1]: " .. tostring(command.cmd[1]), vim.log.levels.INFO)
+  vim.notify("command.cmd[1]: " .. tostring(command.cmd[1]), vim.log.levels.INFO)
   if command == nil then
     vim.notify("No maven command")
     return
