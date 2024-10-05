@@ -105,7 +105,6 @@ function maven.execute_command(command)
       return
     else
       maven.create_project()
-      return
     end
   end
   vim.notify("command.cmd[1]: " .. tostring(command.cmd[1]), vim.log.levels.INFO)
