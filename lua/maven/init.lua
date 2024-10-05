@@ -89,20 +89,34 @@ function maven.create_project()
 end
 
 function maven.execute_command(command)
+  local cwd = get_cwd()
+
   if command == nil then
     vim.notify("No maven command")
     return
   end
-  local cwd = get_cwd()
-  if command.cmd[1] == "create" then
-    maven.create_project() -- Correção aqui
-    return
+  -- if command.cmd[1] == "create" then
+  --   maven.create_project() -- Correção aqui
+  --   return
+  -- end
+
+  if command.cmd[1] ~= "create" then
+    if command.cmd[1] ~= "archetype:generate" then
+      if not has_build_file(cwd) then
+        vim.notify("no pom.xml file found under " .. cwd, vim.log.levels.ERROR)
+        return
+      end
+    end
   end
 
-  if command.cmd[1] ~= "create" or command.cmd[1] ~= "archetype:generate" then
-    vim.notify("command.cmd[1]: " .. tostring(command.cmd[1]), vim.log.levels.INFO)
-    if not has_build_file(cwd) then
-      vim.notify("no pom.xml file found under " .. cwd, vim.log.levels.ERROR)
+  if command.cmd[1] == "create" then
+    if has_build_file(cwd) then
+      vim.notify(
+        "there is a pom.xml file that indicates, that there is a maven project in the directory " .. cwd,
+        vim.log.levels.ERROR
+      )
+    else
+      maven.create_project() -- Correção aqui
       return
     end
   end
