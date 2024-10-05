@@ -107,12 +107,16 @@ function maven.execute_command(command)
       maven.create_project()
       return
     end
-  elseif not has_build_file(cwd) and command.cmd[1] ~= "create" then
+  end
+
+  -- Se o comando não for "create" e não houver um pom.xml, exibe o erro
+  if not has_build_file(cwd) then
     vim.notify("no pom.xml file found under " .. cwd, vim.log.levels.ERROR)
     return
-  else
-    maven.run_command(command)
   end
+
+  -- Se tudo estiver correto, executa o comando
+  maven.run_command(command)
 
   maven.kill_running_job()
 
