@@ -96,19 +96,17 @@ function maven.execute_command(command)
 
   local cwd = get_cwd()
 
-  -- Se o arquivo pom.xml não existir e o comando for 'archetype:generate', cria o projeto sem executar o comando novamente
-  if not has_build_file(cwd) and command.cmd[1] == "archetype:generate" then
-    maven.create_project()
-    return -- Evita continuar a execução da função
+  if not has_build_file(cwd) and command.cmd[1] ~= "archetype:generate" then
+    vim.notify("no pom.xml file found under " .. cwd, vim.log.levels.ERROR)
+    return
   elseif has_build_file(cwd) and command.cmd[1] == "archetype:generate" then
     vim.notify(
       "there is a pom.xml file that indicates, that there is a maven project in the directory " .. cwd,
       vim.log.levels.ERROR
     )
     return
-  elseif has_build_file(cwd) and command.cmd[1] ~= "archetype:generate" then
-    maven.run_command(command)
   end
+
   maven.kill_running_job()
 
   local args = {}
