@@ -11,6 +11,7 @@ local commands = {
   { cmd = { "install" } },
   { cmd = { "site" } },
   { cmd = { "deploy" } },
+  { cmd = { "create" }, desc = "Create Maven Project" },
 }
 
 return commands

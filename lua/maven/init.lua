@@ -28,11 +28,6 @@ end
 function maven.commands()
   local prompt = "Execute maven goal (" .. vim.fn.fnamemodify(vim.fn.getcwd(), ":t") .. ")"
 
-  -- Se não há pom.xml, adiciona a opção de criar um projeto Maven
-  if not has_build_file(get_cwd()) then
-    table.insert(commands, { cmd = { "create" }, desc = "Create Maven Project" })
-  end
-
   vim.ui.select(commands, {
     prompt = prompt,
     format_item = function(item)
@@ -106,7 +101,7 @@ function maven.execute_command(command)
     return
   end
 
-  if not has_build_file(cwd) and not command.cmd[1] == "create" then
+  if not has_build_file(cwd) then
     vim.notify("no pom.xml file found under " .. cwd, vim.log.levels.ERROR)
     return
   end
