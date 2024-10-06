@@ -155,7 +155,7 @@ function maven.add_dependency_to_pom()
       -- Remove a linha de instrução
       vim.api.nvim_buf_set_lines(buf, 0, 1, false, {}) -- Isso remove a linha de instrução
 
-      local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+      local lines = vim.api.nvim_buf_get_lines(buf, 0, 1, false)
       local dependency = table.concat(lines, "\n")
 
       if dependency == "" then
