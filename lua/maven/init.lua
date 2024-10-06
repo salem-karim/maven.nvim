@@ -17,6 +17,11 @@ if not json_ok then
   end
 end
 
+if not json then
+  vim.notify("JSON is nil after loading", vim.log.levels.ERROR)
+  return
+end
+
 local function has_build_file(cwd)
   return vim.fn.findfile("pom.xml", cwd) ~= ""
 end
@@ -76,6 +81,9 @@ function maven.search_dependency()
       on_exit = function(job, return_val)
         local body = job:result()
 
+        -- Debug: Verifique o conteúdo da resposta
+        print(vim.inspect(body))
+
         -- Verifica se houve erro na requisição
         if return_val ~= 0 then
           vim.notify("Failed to fetch dependencies from Maven Central", vim.log.levels.ERROR)
@@ -83,8 +91,13 @@ function maven.search_dependency()
         end
 
         -- Parseia o resultado JSON
-        local result = json.decode(table.concat(body, "\n"))
-        if not result or not result.response or #result.response.docs == 0 then
+        local result, decode_err = pcall(json.decode, table.concat(body, "\n"))
+        if not result then
+          vim.notify("Failed to decode JSON: " .. decode_err, vim.log.levels.ERROR)
+          return
+        end
+
+        if not result.response or #result.response.docs == 0 then
           vim.notify("No results found for query: " .. query, vim.log.levels.ERROR)
           return
         end
@@ -158,7 +171,6 @@ function maven.add_dependency_to_pom(groupId, artifactId, version)
 
   vim.notify("Dependency added successfully to pom.xml!", vim.log.levels.INFO)
 end
-
 -- on create project maven
 function maven.create_project()
   local default_group_id = "com.javaexample"
