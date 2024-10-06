@@ -159,13 +159,16 @@ function maven.add_dependency_to_pom()
     end
   end
 
-  -- Define o autocmd para remover a instrução assim que o usuário começar a editar ou colar texto
-  vim.api.nvim_create_autocmd({ "TextChangedI", "TextChanged", "TextChangedP" }, {
-    buffer = buf,
-    callback = function()
-      remove_instruction()
-    end,
-  })
+  -- Adiciona um pequeno atraso antes de ativar o autocmd
+  vim.defer_fn(function()
+    -- Define o autocmd para remover a instrução assim que o usuário começar a editar ou colar texto
+    vim.api.nvim_create_autocmd({ "TextChangedI", "TextChanged", "TextChangedP" }, {
+      buffer = buf,
+      callback = function()
+        remove_instruction()
+      end,
+    })
+  end, 500) -- 500 ms de atraso antes de ativar o autocmd
 
   -- Mapeia o <enter> para fechar a janela e capturar o conteúdo
   vim.api.nvim_buf_set_keymap(buf, "n", "<CR>", "", {
