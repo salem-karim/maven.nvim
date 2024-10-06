@@ -141,11 +141,14 @@ function maven.add_dependency_to_pom()
     local pom_content = table.concat(vim.fn.readfile(pom_file), "\n")
 
     -- Verifica se a dependência já está presente no pom.xml
-    if pom_content:find(dependency, 1, true) then
+    local function normalize_string(str)
+      return str:gsub("%s+", " "):gsub("^%s*(.-)%s*$", "%1")
+    end
+
+    if pom_content:find(normalize_string(dependency), 1, true) then
       vim.notify("Dependency already exists in pom.xml", vim.log.levels.INFO)
       return
     end
-
     -- Se não encontrar, insere a dependência
     local lines = {}
     for line in io.lines(pom_file) do
