@@ -152,9 +152,6 @@ function maven.add_dependency_to_pom()
       -- Habilita 'modifiable' antes de modificar o buffer
       vim.bo[buf].modifiable = true
 
-      -- Remove a linha de instrução
-      vim.api.nvim_buf_set_lines(buf, 0, 1, false, {}) -- Isso remove a linha de instrução
-
       -- Captura todas as linhas do buffer, incluindo a primeira
       local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
       local dependency = table.concat(lines, "\n")
@@ -214,6 +211,7 @@ function maven.add_dependency_to_pom()
     end,
   })
 end
+
 function maven.execute_command(command)
   local cwd = get_cwd()
 
