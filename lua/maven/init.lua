@@ -104,7 +104,7 @@ function maven.add_dependency_to_pom()
   --   return
   -- end
   local cmd = {}
-  if os_name == "Linux" then
+  if os_name == "Linux" or os_name == "FreeBSD" or os_name == "OpenBSD" or os_name == "NetBSD" then
     cmd = { "xdg-open", "https://central.sonatype.com/" }
   elseif os_name == "Darwin" then
     cmd = { "open", "https://central.sonatype.com/" }
