@@ -122,7 +122,7 @@ function maven.add_dependency_to_pom()
     end
   end)
 
-  -- Cria um buffer somente leitura
+  -- Cria um buffer
   local buf = vim.api.nvim_create_buf(false, true)
 
   -- Abre uma janela flutuante com o buffer
@@ -136,6 +136,9 @@ function maven.add_dependency_to_pom()
     border = "rounded",
   })
 
+  -- Define o buffer como modificável
+  vim.bo[buf].modifiable = true
+
   -- Instrução ao usuário
   vim.api.nvim_buf_set_lines(
     buf,
@@ -145,16 +148,25 @@ function maven.add_dependency_to_pom()
     { "Cole a dependência aqui e pressione enter para adicionar ao pom.xml." }
   )
 
-  -- Define o buffer como somente leitura
-  vim.bo[buf].modifiable = false
+  -- Define o autocmd para remover a instrução assim que o usuário começar a editar
+  vim.api.nvim_buf_attach(buf, false, {
+    on_lines = function()
+      -- Remove a linha de instrução assim que algo for colado ou digitado
+      if
+        vim.api.nvim_buf_get_lines(buf, 0, 1, false)[1]
+        == "Cole a dependência aqui e pressione enter para adicionar ao pom.xml."
+      then
+        vim.api.nvim_buf_set_lines(buf, 0, 1, false, {})
+      end
+    end,
+  })
 
   -- Mapeia o <enter> para fechar a janela e capturar o conteúdo
   vim.api.nvim_buf_set_keymap(buf, "n", "<CR>", "", {
     noremap = true,
     callback = function()
       -- Torna o buffer editável para capturar as linhas
-      vim.bo[buf].modifiable = true
-      local lines = vim.api.nvim_buf_get_lines(buf, 1, -1, false)
+      local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
       local dependency = table.concat(lines, "\n")
 
       if dependency == "" then
@@ -162,8 +174,7 @@ function maven.add_dependency_to_pom()
         return
       end
 
-      -- Remove a linha de instrução
-      vim.api.nvim_buf_set_lines(buf, 0, 1, false, {})
+      -- Caminho do arquivo pom.xml
       local pom_file = get_cwd() .. "/pom.xml"
 
       -- Lê o conteúdo do arquivo pom.xml
@@ -180,13 +191,12 @@ function maven.add_dependency_to_pom()
         return
       end
 
-      -- Se não encontrar, insere a dependência
+      -- Insere a dependência antes da tag </dependencies>
       local lines = {}
       for line in io.lines(pom_file) do
         table.insert(lines, line)
       end
 
-      -- Procura o fechamento da tag <dependencies> e insere antes
       local insert_index = nil
       for i, line in ipairs(lines) do
         if line:find("</dependencies>") then
