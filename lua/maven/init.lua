@@ -3,15 +3,10 @@ local View = require("maven.view")
 local commands = require("maven.commands")
 local config = require("maven.config")
 local uv = vim.loop
+local Job = require("plenary.job")
 
 local view
 local job
-
-local https_ok, https = pcall(require, "ssl.https")
-if not https_ok then
-  vim.notify("SSL HTTPS module not found, skipping Maven search functionality", vim.log.levels.WARN)
-  return
-end
 
 local json_ok, json = pcall(require, "json")
 if not json_ok then
@@ -75,38 +70,48 @@ function maven.search_dependency()
 
     local url = "https://search.maven.org/solrsearch/select?q=" .. query .. "&rows=20&wt=json"
 
-    local body, code = https.request(url)
-    if code ~= 200 then
-      vim.notify("Failed to fetch dependencies from Maven Central", vim.log.levels.ERROR)
-      return
-    end
+    Job:new({
+      command = "curl",
+      args = { url },
+      on_exit = function(job, return_val)
+        local body = job:result()
 
-    local result = json.decode(body)
-    if not result or not result.response or #result.response.docs == 0 then
-      vim.notify("No results found for query: " .. query, vim.log.levels.ERROR)
-      return
-    end
+        -- Verifica se houve erro na requisição
+        if return_val ~= 0 then
+          vim.notify("Failed to fetch dependencies from Maven Central", vim.log.levels.ERROR)
+          return
+        end
 
-    local dependencies = {}
-    for _, doc in ipairs(result.response.docs) do
-      table.insert(dependencies, {
-        label = doc.g .. ":" .. doc.a .. " (v" .. doc.latestVersion .. ")",
-        groupId = doc.g,
-        artifactId = doc.a,
-        version = doc.latestVersion,
-      })
-    end
+        -- Parseia o resultado JSON
+        local result = json.decode(table.concat(body, "\n"))
+        if not result or not result.response or #result.response.docs == 0 then
+          vim.notify("No results found for query: " .. query, vim.log.levels.ERROR)
+          return
+        end
 
-    vim.ui.select(dependencies, {
-      prompt = "Select a dependency to add:",
-      format_item = function(item)
-        return item.label
+        -- Exibe as opções de dependências encontradas
+        local dependencies = {}
+        for _, doc in ipairs(result.response.docs) do
+          table.insert(dependencies, {
+            label = doc.g .. ":" .. doc.a .. " (v" .. doc.latestVersion .. ")",
+            groupId = doc.g,
+            artifactId = doc.a,
+            version = doc.latestVersion,
+          })
+        end
+
+        vim.ui.select(dependencies, {
+          prompt = "Select a dependency to add:",
+          format_item = function(item)
+            return item.label
+          end,
+        }, function(choice)
+          if choice then
+            maven.add_dependency_to_pom(choice.groupId, choice.artifactId, choice.version)
+          end
+        end)
       end,
-    }, function(choice)
-      if choice then
-        maven.add_dependency_to_pom(choice.groupId, choice.artifactId, choice.version)
-      end
-    end)
+    }):start()
   end)
 end
 
