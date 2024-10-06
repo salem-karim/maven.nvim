@@ -122,8 +122,10 @@ function maven.add_dependency_to_pom()
     end
   end)
 
-  -- Cria o buffer e a janela para inserir a dependência
+  -- Cria um buffer somente leitura
   local buf = vim.api.nvim_create_buf(false, true)
+
+  -- Abre uma janela flutuante com o buffer
   local win = vim.api.nvim_open_win(buf, true, {
     relative = "editor",
     width = 80,
@@ -134,64 +136,58 @@ function maven.add_dependency_to_pom()
     border = "rounded",
   })
 
-  -- Exibe a instrução no buffer
+  -- Instrução ao usuário
   vim.api.nvim_buf_set_lines(
     buf,
     0,
     -1,
     false,
-    { "Cole a dependência aqui e pressione Enter para adicionar ao pom.xml." }
+    { "Cole a dependência aqui e pressione enter para adicionar ao pom.xml." }
   )
 
-  -- Permite modificação do buffer
-  vim.bo[buf].modifiable = true
+  -- Define o buffer como somente leitura
+  vim.bo[buf].modifiable = false
 
-  -- Remove a linha de instrução quando o usuário começa a editar
-  vim.api.nvim_buf_attach(buf, false, {
-    on_lines = function(_, _buf)
-      -- Limpa a instrução assim que algo for inserido
-      if
-        vim.api.nvim_buf_get_lines(_buf, 0, -1, false)[1]
-        ~= "Cole a dependência aqui e pressione Enter para adicionar ao pom.xml."
-      then
-        vim.api.nvim_buf_set_lines(_buf, 0, -1, false, {})
-      end
-    end,
-  })
-
-  -- Mapeia o <Enter> para capturar o conteúdo e adicionar ao pom.xml
+  -- Mapeia o <enter> para fechar a janela e capturar o conteúdo
   vim.api.nvim_buf_set_keymap(buf, "n", "<CR>", "", {
     noremap = true,
     callback = function()
-      -- Captura todas as linhas do buffer
-      local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+      -- Torna o buffer editável para capturar as linhas
+      vim.bo[buf].modifiable = true
+      local lines = vim.api.nvim_buf_get_lines(buf, 1, -1, false)
       local dependency = table.concat(lines, "\n")
 
-      -- Verifica se a dependência foi colada ou escrita
       if dependency == "" then
         vim.notify("No dependency provided", vim.log.levels.WARN)
         return
       end
 
+      -- Remove a linha de instrução
+      vim.api.nvim_buf_set_lines(buf, 0, 1, false, {})
+
       local pom_file = get_cwd() .. "/pom.xml"
+
+      -- Lê o conteúdo do arquivo pom.xml
       local pom_content = table.concat(vim.fn.readfile(pom_file), "\n")
 
+      -- Função para normalizar strings (remover espaços extras)
       local function normalize_string(str)
         return str:gsub("%s+", " "):gsub("^%s*(.-)%s*$", "%1")
       end
 
-      -- Verifica se a dependência já existe no pom.xml
+      -- Verifica se a dependência já está presente no pom.xml
       if pom_content:find(normalize_string(dependency), 1, true) then
         vim.notify("Dependency already exists in pom.xml", vim.log.levels.INFO)
         return
       end
 
-      -- Lê o pom.xml e encontra o local de inserção
+      -- Se não encontrar, insere a dependência
       local lines = {}
       for line in io.lines(pom_file) do
         table.insert(lines, line)
       end
 
+      -- Procura o fechamento da tag <dependencies> e insere antes
       local insert_index = nil
       for i, line in ipairs(lines) do
         if line:find("</dependencies>") then
@@ -200,7 +196,6 @@ function maven.add_dependency_to_pom()
         end
       end
 
-      -- Insere a dependência no lugar correto
       if insert_index then
         table.insert(lines, insert_index, dependency)
       else
@@ -208,7 +203,7 @@ function maven.add_dependency_to_pom()
         return
       end
 
-      -- Grava as mudanças no pom.xml
+      -- Escreve as alterações de volta no pom.xml
       local file = io.open(pom_file, "w")
       if not file then
         vim.notify("Failed to open pom.xml for writing", vim.log.levels.ERROR)
@@ -220,8 +215,9 @@ function maven.add_dependency_to_pom()
       end
       file:close()
 
-      -- Notifica a adição e fecha a janela
       vim.notify("Dependency added to pom.xml", vim.log.levels.INFO)
+
+      -- Fecha a janela após salvar
       vim.api.nvim_win_close(win, true)
     end,
   })
