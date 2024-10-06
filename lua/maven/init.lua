@@ -7,6 +7,9 @@ local uv = vim.loop
 local view
 local job
 
+local https = require("ssl.https")
+local json = require("json")
+
 local function has_build_file(cwd)
   return vim.fn.findfile("pom.xml", cwd) ~= ""
 end
@@ -48,6 +51,95 @@ function maven.to_command(str)
     table.insert(cmd, command)
   end
   return { cmd = cmd }
+end
+
+-- Search and Add Maven Dependency
+function maven.search_dependency()
+  vim.ui.input({ prompt = "Search Maven dependency:" }, function(query)
+    if not query or query == "" then
+      vim.notify("No search query provided", vim.log.levels.ERROR)
+      return
+    end
+
+    local url = "https://search.maven.org/solrsearch/select?q=" .. query .. "&rows=20&wt=json"
+
+    local body, code = https.request(url)
+    if code ~= 200 then
+      vim.notify("Failed to fetch dependencies from Maven Central", vim.log.levels.ERROR)
+      return
+    end
+
+    local result = json.decode(body)
+    if not result or not result.response or #result.response.docs == 0 then
+      vim.notify("No results found for query: " .. query, vim.log.levels.ERROR)
+      return
+    end
+
+    local dependencies = {}
+    for _, doc in ipairs(result.response.docs) do
+      table.insert(dependencies, {
+        label = doc.g .. ":" .. doc.a .. " (v" .. doc.latestVersion .. ")",
+        groupId = doc.g,
+        artifactId = doc.a,
+        version = doc.latestVersion,
+      })
+    end
+
+    vim.ui.select(dependencies, {
+      prompt = "Select a dependency to add:",
+      format_item = function(item)
+        return item.label
+      end,
+    }, function(choice)
+      if choice then
+        maven.add_dependency_to_pom(choice.groupId, choice.artifactId, choice.version)
+      end
+    end)
+  end)
+end
+
+function maven.add_dependency_to_pom(groupId, artifactId, version)
+  local cwd = get_cwd()
+  local pom_path = cwd .. "/pom.xml"
+
+  -- Verify pom.xml exist
+  if not has_build_file(cwd) then
+    vim.notify("No pom.xml file found in " .. cwd, vim.log.levels.ERROR)
+    return
+  end
+
+  local pom_file = io.open(pom_path, "r")
+
+  if not pom_file then
+    vim.notify("Failed to open pom.xml for reading", vim.log.levels.ERROR)
+    return
+  end
+
+  local pom_content = pom_file:read("*all")
+  pom_file:close()
+
+  local dependency_block = [[
+<dependency>
+  <groupId>%s</groupId>
+  <artifactId>%s</artifactId>
+  <version>%s</version>
+</dependency>
+]]
+  local dependency_xml = string.format(dependency_block, groupId, artifactId, version)
+
+  local new_pom_content = pom_content:gsub("(%s*</dependencies>)", dependency_xml .. "%1")
+
+  local pom_file_write = io.open(pom_path, "w")
+
+  if not pom_file_write then
+    vim.notify("Failed to open pom.xml for writing", vim.log.levels.ERROR)
+    return
+  end
+
+  pom_file_write:write(new_pom_content)
+  pom_file_write:close()
+
+  vim.notify("Dependency added successfully to pom.xml!", vim.log.levels.INFO)
 end
 
 -- on create project maven
@@ -107,6 +199,11 @@ function maven.execute_command(command)
     else
       maven.create_project()
     end
+    return
+  end
+
+  if command.cmd[1] == "add-dependency" then
+    maven.search_dependency()
     return
   end
 
