@@ -85,6 +85,94 @@ function maven.create_project()
   end)
 end
 
+function maven.add_dependency_to_pom()
+  -- Open Maven Central for OS
+  -- local os_name = vim.loop.os_uname().sysname
+
+  local os_name, err = pcall(function()
+    return vim.loop.os_uname().sysname
+  end)
+
+  if not os_name then
+    vim.notify("Error getting OS name: " .. err, vim.log.levels.ERROR)
+  else
+    vim.notify("Operating System: " .. err, vim.log.levels.ERROR)
+  end
+
+  if os_name == "Linux" then
+    os.execute("xdg-open https://central.sonatype.com/")
+  elseif os_name == "Darwin" then
+    os.execute("open https://central.sonatype.com/")
+  elseif os_name == "Windows_NT" then
+    os.execute("start https://central.sonatype.com/")
+  else
+    vim.notify("Unsupported operating system", vim.log.levels.ERROR)
+    return
+  end
+
+  -- Verifica se o arquivo pom.xml existe
+  if not has_build_file(get_cwd()) then
+    vim.notify("No pom.xml file found in the current directory", vim.log.levels.ERROR)
+    return
+  end
+
+  -- Solicita a dependência a ser adicionada
+  vim.ui.input({ prompt = "Paste the dependency snippet to add to pom.xml:" }, function(dependency)
+    if not dependency or dependency == "" then
+      vim.notify("No dependency provided", vim.log.levels.WARN)
+      return
+    end
+
+    local pom_file = get_cwd() .. "/pom.xml"
+
+    -- Lê o conteúdo do arquivo pom.xml
+    local pom_content = table.concat(vim.fn.readfile(pom_file), "\n")
+
+    -- Verifica se a dependência já está presente no pom.xml
+    if pom_content:find(dependency, 1, true) then
+      vim.notify("Dependency already exists in pom.xml", vim.log.levels.INFO)
+      return
+    end
+
+    -- Se não encontrar, insere a dependência
+    local lines = {}
+    for line in io.lines(pom_file) do
+      table.insert(lines, line)
+    end
+
+    -- Procura o fechamento da tag <dependencies> e insere antes
+    local insert_index = nil
+    for i, line in ipairs(lines) do
+      if line:find("</dependencies>") then
+        insert_index = i
+        break
+      end
+    end
+
+    if insert_index then
+      table.insert(lines, insert_index, dependency)
+    else
+      vim.notify("No </dependencies> tag found in pom.xml", vim.log.levels.ERROR)
+      return
+    end
+
+    -- Escreve as alterações de volta no pom.xml
+    local file = io.open(pom_file, "w")
+
+    if not file then
+      vim.notify("Failed to open pom.xml for writing", vim.log.levels.ERROR)
+      return
+    end
+
+    for _, line in ipairs(lines) do
+      file:write(line .. "\n")
+    end
+    file:close()
+
+    vim.notify("Dependency added to pom.xml", vim.log.levels.INFO)
+  end)
+end
+
 function maven.execute_command(command)
   local cwd = get_cwd()
 
@@ -107,6 +195,12 @@ function maven.execute_command(command)
     else
       maven.create_project()
     end
+    return
+  end
+
+  if command.cmd[1] == "add-repository" then
+    -- Open  Maven Central
+    maven.add_dependency_to_pom()
     return
   end
 
