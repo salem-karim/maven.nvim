@@ -87,7 +87,7 @@ end
 
 function maven.add_dependency_to_pom()
   -- Open Maven Central for OS
-  local os_name = vim.loop.os_uname().sysname
+  local sysname = vim.loop.os_uname().sysname
 
   if not os_name then
     vim.notify("Error getting OS name: " .. os_name, vim.log.levels.ERROR)
@@ -105,6 +105,38 @@ function maven.add_dependency_to_pom()
     vim.notify("Unsupported operating system: " .. os_name, vim.log.levels.ERROR)
     return
   end
+
+
+
+
+
+ local cmd
+
+    if sysname == "Linux" or sysname == "FreeBSD" or sysname == "OpenBSD" then
+        cmd = "xdg-open https://central.sonatype.com/" 
+    elseif sysname == "Darwin" then
+        cmd = "open " .. url
+    elseif sysname == "Windows_NT" then
+        cmd = "start " .. url
+    else
+        print("Unsupported OS: " .. sysname)
+        return
+    end
+
+    vim.fn.termopen(cmd, {
+        on_exit = function()
+            vim.cmd('bdelete!')
+        end
+    })
+end
+
+
+
+
+
+
+
+
 
   -- Verifica se o arquivo pom.xml existe
   if not has_build_file(get_cwd()) then
