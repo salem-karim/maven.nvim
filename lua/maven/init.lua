@@ -122,8 +122,10 @@ function maven.add_dependency_to_pom()
     end
   end)
 
+  -- Cria um buffer somente leitura
   local buf = vim.api.nvim_create_buf(false, true)
 
+  -- Abre uma janela flutuante com o buffer
   local win = vim.api.nvim_open_win(buf, true, {
     relative = "editor",
     width = 80,
@@ -143,6 +145,7 @@ function maven.add_dependency_to_pom()
     { "Cole a dependência aqui e pressione enter para adicionar ao pom.xml." }
   )
 
+  -- Define o buffer como somente leitura
   vim.bo[buf].modifiable = false
 
   -- Mapeia o <enter> para fechar a janela e capturar o conteúdo
@@ -160,26 +163,30 @@ function maven.add_dependency_to_pom()
       end
 
       -- Remove a linha de instrução
-      vim.api.nvim_buf_set_lines(buf, 0, 1, false, {}) -- Isso remove a linha de instrução
-
+      vim.api.nvim_buf_set_lines(buf, 0, 1, false, {})
       local pom_file = get_cwd() .. "/pom.xml"
 
+      -- Lê o conteúdo do arquivo pom.xml
       local pom_content = table.concat(vim.fn.readfile(pom_file), "\n")
 
+      -- Função para normalizar strings (remover espaços extras)
       local function normalize_string(str)
         return str:gsub("%s+", " "):gsub("^%s*(.-)%s*$", "%1")
       end
 
+      -- Verifica se a dependência já está presente no pom.xml
       if pom_content:find(normalize_string(dependency), 1, true) then
         vim.notify("Dependency already exists in pom.xml", vim.log.levels.INFO)
         return
       end
 
+      -- Se não encontrar, insere a dependência
       local lines = {}
       for line in io.lines(pom_file) do
         table.insert(lines, line)
       end
 
+      -- Procura o fechamento da tag <dependencies> e insere antes
       local insert_index = nil
       for i, line in ipairs(lines) do
         if line:find("</dependencies>") then
@@ -195,6 +202,7 @@ function maven.add_dependency_to_pom()
         return
       end
 
+      -- Escreve as alterações de volta no pom.xml
       local file = io.open(pom_file, "w")
       if not file then
         vim.notify("Failed to open pom.xml for writing", vim.log.levels.ERROR)
@@ -208,6 +216,7 @@ function maven.add_dependency_to_pom()
 
       vim.notify("Dependency added to pom.xml", vim.log.levels.INFO)
 
+      -- Fecha a janela após salvar
       vim.api.nvim_win_close(win, true)
     end,
   })
