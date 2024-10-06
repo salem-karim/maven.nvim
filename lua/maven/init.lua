@@ -85,6 +85,80 @@ function maven.create_project()
   end)
 end
 
+-- Função para buscar dependência no Maven Central usando curl
+function maven.search_maven_central(groupId, artifactId)
+  local url = "https://search.maven.org/solrsearch/select?q=g:"
+    .. groupId
+    .. "+AND+a:"
+    .. artifactId
+    .. "&rows=1&wt=json"
+  local handle = io.popen('curl -s "' .. url .. '"')
+  local result = handle:read("*a")
+  handle:close()
+
+  -- Processa o resultado
+  if result and result:find('"response":{"numFound":0') then
+    vim.notify("Dependency not found in Maven Central", vim.log.levels.ERROR)
+    return nil
+  end
+
+  -- Retorna o JSON com a resposta bruta
+  return result
+end
+
+-- Função para adicionar dependência no pom.xml
+function maven.add_dependency_to_pom(groupId, artifactId, version)
+  local pom_path = vim.fn.findfile("pom.xml")
+  if pom_path == "" then
+    vim.notify("No pom.xml found in current directory", vim.log.levels.ERROR)
+    return
+  end
+
+  -- Estrutura XML da dependência a ser adicionada
+  local dependency = [[
+    <dependency>
+      <groupId>]] .. groupId .. [[</groupId>
+      <artifactId>]] .. artifactId .. [[</artifactId>
+      <version>]] .. version .. [[</version>
+    </dependency>
+  ]]
+
+  -- Abre o arquivo pom.xml e insere a dependência antes da tag </dependencies>
+  local lines = {}
+  for line in io.lines(pom_path) do
+    if line:find("</dependencies>") then
+      table.insert(lines, dependency)
+    end
+    table.insert(lines, line)
+  end
+
+  -- Escreve de volta no arquivo pom.xml
+  local file = io.open(pom_path, "w")
+  for _, line in ipairs(lines) do
+    file:write(line .. "\n")
+  end
+  file:close()
+
+  vim.notify("Dependency added to pom.xml", vim.log.levels.INFO)
+end
+
+-- Função para buscar e adicionar dependência
+function maven.add_dependency(groupId, artifactId)
+  -- Busca a dependência no Maven Central
+  local result = maven.search_maven_central(groupId, artifactId)
+
+  if result then
+    -- Simplesmente buscar a versão do JSON retornado
+    local version = result:match('"latestVersion":"([%d%.]+)"')
+    if version then
+      -- Adiciona a dependência ao pom.xml
+      maven.add_dependency_to_pom(groupId, artifactId, version)
+    else
+      vim.notify("Unable to extract version from Maven Central response", vim.log.levels.ERROR)
+    end
+  end
+end
+
 function maven.execute_command(command)
   local cwd = get_cwd()
 
