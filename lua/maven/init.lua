@@ -122,6 +122,7 @@ function maven.add_dependency_to_pom()
     end
   end)
 
+  -- Cria um buffer somente leitura
   local buf = vim.api.nvim_create_buf(false, true)
 
   -- Abre uma janela flutuante com o buffer
@@ -144,10 +145,38 @@ function maven.add_dependency_to_pom()
     { "Cole a dependência aqui e pressione <ESC> para adicionar ao pom.xml." }
   )
 
+  -- Cria um buffer somente leitura
+  local buf = vim.api.nvim_create_buf(false, true)
+
+  -- Abre uma janela flutuante com o buffer
+  local win = vim.api.nvim_open_win(buf, true, {
+    relative = "editor",
+    width = 80,
+    height = 10,
+    row = 10,
+    col = 10,
+    style = "minimal",
+    border = "rounded",
+  })
+
+  -- Instrução ao usuário
+  vim.api.nvim_buf_set_lines(
+    buf,
+    0,
+    -1,
+    false,
+    { "Cole a dependência aqui e pressione <ESC> para adicionar ao pom.xml." }
+  )
+
+  -- Define o buffer como somente leitura
+  vim.bo[buf].modifiable = false
+
   -- Mapeia o <ESC> para fechar a janela e capturar o conteúdo
   vim.api.nvim_buf_set_keymap(buf, "n", "<ESC>", "", {
     noremap = true,
     callback = function()
+      -- Torna o buffer editável para capturar as linhas
+      vim.bo[buf].modifiable = true
       local lines = vim.api.nvim_buf_get_lines(buf, 1, -1, false)
       local dependency = table.concat(lines, "\n")
 
