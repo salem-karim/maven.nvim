@@ -160,7 +160,7 @@ function maven.add_dependency_to_pom()
       end
 
       -- Remove a linha de instrução
-      vim.api.nvim_buf_set_lines(buf, 0, 1, false, {})
+      vim.api.nvim_buf_set_lines(buf, 0, 1, false, {}) -- Isso remove a linha de instrução
 
       local pom_file = get_cwd() .. "/pom.xml"
 
