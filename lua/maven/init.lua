@@ -140,12 +140,7 @@ function maven.add_dependency_to_pom()
   -- })
 
   vim.schedule(function()
-    vim.fn.termopen(cmd, {
-      on_exit = function()
-        -- Fecha o buffer do terminal automaticamente
-        vim.api.nvim_buf_delete(buf, { force = true })
-      end,
-    })
+    vim.fn.termopen(cmd)
   end)
 
   -- Verifica se o arquivo pom.xml existe
