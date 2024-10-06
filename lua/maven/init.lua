@@ -96,7 +96,7 @@ function maven.add_dependency_to_pom()
   if not os_name then
     vim.notify("Error getting OS name: " .. err, vim.log.levels.ERROR)
   else
-    vim.notify("Operating System: " .. err, vim.log.levels.ERROR)
+    print("Operating System: " .. os_name)
   end
 
   if os_name == "Linux" then
