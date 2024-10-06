@@ -102,15 +102,26 @@ function maven.add_dependency_to_pom()
   end
 
   if os_name == "Linux" then
-    open_browser("xdg-open")
+    open_browser(os.execute("xdg-open https://central.sonatype.com/"))
   elseif os_name == "Darwin" then
-    open_browser("open")
+    open_browser("open https://central.sonatype.com/")
   elseif os_name == "Windows_NT" then
     open_browser("start")
   else
     vim.notify("Unsupported operating system: " .. os_name, vim.log.levels.ERROR)
     return
   end
+
+  -- if os_name == "Linux" then
+  --     os.execute("xdg-open https://central.sonatype.com/")
+  --   elseif os_name == "Darwin" then
+  --     os.execute("open https://central.sonatype.com/")
+  --   elseif os_name == "Windows_NT" then
+  --     os.execute("start https://central.sonatype.com/")
+  --   else
+  --     vim.notify("Unsupported operating system: " .. os_name, vim.log.levels.ERROR)
+  --     return
+  --   end
 
   -- Verifica se o arquivo pom.xml existe
   if not has_build_file(get_cwd()) then
