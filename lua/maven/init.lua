@@ -103,27 +103,24 @@ function maven.add_dependency_to_pom()
   --   vim.notify("Unsupported operating system", vim.log.levels.ERROR)
   --   return
   -- end
-
-  function M.start()
-    local cmd = {}
-    if os_name == "Linux" then
-      cmd = { "xdg-open", "https://central.sonatype.com/" }
-    elseif os_name == "Darwin" then
-      cmd = { "open", "https://central.sonatype.com/" }
-    elseif os_name == "Windows_NT" then
-      cmd = { "cmd.exe", "/C", "start", "https://central.sonatype.com/" }
-    else
-      vim.notify("Unsupported OS", vim.log.levels.ERROR)
-      return
-    end
-
-    -- Execute de forma não bloqueante
-    vim.loop.spawn(cmd[1], { args = { cmd[2], cmd[3], cmd[4] } }, function(code, signal)
-      if code ~= 0 then
-        vim.notify("Failed to open URL", vim.log.levels.ERROR)
-      end
-    end)
+  local cmd = {}
+  if os_name == "Linux" then
+    cmd = { "xdg-open", "https://central.sonatype.com/" }
+  elseif os_name == "Darwin" then
+    cmd = { "open", "https://central.sonatype.com/" }
+  elseif os_name == "Windows_NT" then
+    cmd = { "cmd.exe", "/C", "start", "https://central.sonatype.com/" }
+  else
+    vim.notify("Unsupported OS", vim.log.levels.ERROR)
+    return
   end
+
+  -- Executa o comando de forma não bloqueante
+  vim.loop.spawn(cmd[1], { args = { cmd[2], cmd[3], cmd[4] } }, function(code, signal)
+    if code ~= 0 then
+      vim.notify("Failed to open URL", vim.log.levels.ERROR)
+    end
+  end)
 
   -- Verifica se o arquivo pom.xml existe
   if not has_build_file(get_cwd()) then
