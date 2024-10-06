@@ -149,18 +149,18 @@ function maven.add_dependency_to_pom()
   vim.api.nvim_buf_set_keymap(buf, "n", "<CR>", "", {
     noremap = true,
     callback = function()
+      -- Remove a linha de instrução
+      vim.api.nvim_buf_set_lines(buf, 0, 1, false, {}) -- Isso remove a linha de instrução
+
       -- Torna o buffer editável para capturar as linhas
       vim.bo[buf].modifiable = true
-      local lines = vim.api.nvim_buf_get_lines(buf, 1, -1, false)
+      local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
       local dependency = table.concat(lines, "\n")
 
       if dependency == "" then
         vim.notify("No dependency provided", vim.log.levels.WARN)
         return
       end
-
-      -- Remove a linha de instrução
-      vim.api.nvim_buf_set_lines(buf, 0, 1, false, {}) -- Isso remove a linha de instrução
 
       local pom_file = get_cwd() .. "/pom.xml"
 
