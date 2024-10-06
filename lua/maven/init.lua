@@ -93,14 +93,22 @@ function maven.add_dependency_to_pom()
     vim.notify("Error getting OS name: " .. os_name, vim.log.levels.ERROR)
   end
 
+  local function open_browser(command)
+    vim.loop.spawn(command, {}, function()
+      vim.schedule(function()
+        vim.notify("Maven Central opened in the browser", vim.log.levels.INFO)
+      end)
+    end)
+  end
+
   if os_name == "Linux" then
-    os.execute("xdg-open https://central.sonatype.com/")
+    open_browser("xdg-open")
   elseif os_name == "Darwin" then
-    os.execute("open https://central.sonatype.com/")
+    open_browser("open")
   elseif os_name == "Windows_NT" then
-    os.execute("start https://central.sonatype.com/")
+    open_browser("start")
   else
-    vim.notify("Unsupported operating system", vim.log.levels.ERROR)
+    vim.notify("Unsupported operating system: " .. os_name, vim.log.levels.ERROR)
     return
   end
 
