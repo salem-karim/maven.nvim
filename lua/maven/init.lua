@@ -149,7 +149,7 @@ function maven.add_dependency_to_pom()
   )
 
   -- Move o cursor para a linha abaixo da mensagem
-  vim.api.nvim_win_set_cursor(win, { 2, 0 }) -- Linha 2, coluna 0
+  vim.api.nvim_win_set_cursor(win, { 1, 0 }) -- Linha 2, coluna 0
 
   -- Função para remover a mensagem de instrução
   local function remove_instruction()
