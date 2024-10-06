@@ -149,11 +149,12 @@ function maven.add_dependency_to_pom()
   vim.api.nvim_buf_set_keymap(buf, "n", "<CR>", "", {
     noremap = true,
     callback = function()
+      -- Habilita 'modifiable' antes de modificar o buffer
+      vim.bo[buf].modifiable = true
+
       -- Remove a linha de instrução
       vim.api.nvim_buf_set_lines(buf, 0, 1, false, {}) -- Isso remove a linha de instrução
 
-      -- Torna o buffer editável para capturar as linhas
-      vim.bo[buf].modifiable = true
       local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
       local dependency = table.concat(lines, "\n")
 
