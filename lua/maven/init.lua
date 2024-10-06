@@ -113,16 +113,17 @@ function maven.add_dependency_to_pom()
   })
 
   local cmd
+  local buf = vim.api.nvim_create_buf(false, true)
 
   if sysname == "Linux" or sysname == "FreeBSD" or sysname == "OpenBSD" then
     cmd = "xdg-open https://central.sonatype.com/"
-    vim.cmd("vnew") -- Cria um novo split
-    vim.cmd("setlocal nobuflisted") -- Remove o buffer da lista de buffers
-    vim.fn.termopen(cmd, {
-      on_exit = function()
-        vim.cmd("bdelete!")
-      end,
-    })
+    -- vim.cmd("vnew") -- Cria um novo split
+    -- vim.cmd("setlocal nobuflisted") -- Remove o buffer da lista de buffers
+    -- vim.fn.termopen(cmd, {
+    --   on_exit = function()
+    --     vim.cmd("bdelete!")
+    --   end,
+    -- })
   elseif sysname == "Darwin" then
     cmdurl = "open "
   elseif sysname == "Windows_NT" then
@@ -132,11 +133,20 @@ function maven.add_dependency_to_pom()
     return
   end
 
-  vim.fn.termopen(cmd_url, {
-    on_exit = function()
-      vim.cmd("bdelete!")
-    end,
-  })
+  -- vim.fn.termopen(cmd_url, {
+  --   on_exit = function()
+  --     vim.cmd("bdelete!")
+  --   end,
+  -- })
+
+  vim.schedule(function()
+    vim.fn.termopen(cmd, {
+      on_exit = function()
+        -- Fecha o buffer do terminal automaticamente
+        vim.api.nvim_buf_delete(buf, { force = true })
+      end,
+    })
+  end)
 
   -- Verifica se o arquivo pom.xml existe
   if not has_build_file(get_cwd()) then
