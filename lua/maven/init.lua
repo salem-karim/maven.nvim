@@ -87,14 +87,10 @@ end
 
 function maven.add_dependency_to_pom()
   -- Open Maven Central for OS
-  -- local os_name = vim.loop.os_uname().sysname
-
-  local os_name, err = pcall(function()
-    return vim.loop.os_uname().sysname
-  end)
+  local os_name = vim.loop.os_uname().sysname
 
   if not os_name then
-    vim.notify("Error getting OS name: " .. err, vim.log.levels.ERROR)
+    vim.notify("Error getting OS name: " .. os_name, vim.log.levels.ERROR)
   end
 
   if os_name == "Linux" then
