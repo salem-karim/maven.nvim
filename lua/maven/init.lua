@@ -218,7 +218,8 @@ function maven.add_dependency_to_pom()
       end
 
       if insert_index then
-        table.insert(lines, insert_index, dependency)
+        local formatted_dependency = "  " .. dependency
+        table.insert(lines, insert_index, formatted_dependency)
       else
         vim.notify("No </dependencies> tag found in pom.xml", vim.log.levels.ERROR)
         return
