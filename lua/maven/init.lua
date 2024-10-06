@@ -116,11 +116,12 @@ function maven.add_dependency_to_pom()
 
   if sysname == "Linux" or sysname == "FreeBSD" or sysname == "OpenBSD" then
     -- cmdurl = "xdg-open https://central.sonatype.com/"
-    vim.fn.termopen("xdg-open https://central.sonatype.com/", {
+    vim.fn.termopen(
+      "xdg-open https://central.sonatype.com/"
       -- on_exit = function()
       --     vim.cmd('bdelete!')
       -- end
-    })
+    )
   elseif sysname == "Darwin" then
     cmdurl = "open "
   elseif sysname == "Windows_NT" then
