@@ -102,7 +102,7 @@ function maven.add_dependency_to_pom()
   end
 
   if os_name == "Linux" then
-    open_browser(os.execute("xdg-open https://central.sonatype.com/"))
+    open_browser("xdg-open https://central.sonatype.com/")
   elseif os_name == "Darwin" then
     open_browser("open https://central.sonatype.com/")
   elseif os_name == "Windows_NT" then
