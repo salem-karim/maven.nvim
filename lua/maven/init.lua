@@ -198,7 +198,18 @@ function maven.add_dependency_to_pom()
       end
 
       -- Verifica se a dependência já está presente no pom.xml
-      if pom_content:find(normalize_string(dependency), 1, true) then
+      -- if pom_content:find(normalize_string(dependency), 1, true) then
+      --   vim.notify("Dependency already exists in pom.xml", vim.log.levels.INFO)
+      --   return
+      -- end
+
+      local function is_dependency_present(pom_content, dependency)
+        local normalized_dependency = normalize_string(dependency)
+        local normalized_pom_content = normalize_string(pom_content)
+        return normalized_pom_content:find(normalized_dependency, 1, true) ~= nil
+      end
+
+      if is_dependency_present(pom_content, dependency) then
         vim.notify("Dependency already exists in pom.xml", vim.log.levels.INFO)
         return
       end
@@ -221,9 +232,6 @@ function maven.add_dependency_to_pom()
         -- Formata a dependência com indentação apropriada (4 espaços por nível)
         local formatted_dependency =
           dependency:gsub("\n%s*<", "\n      <"):gsub("\n%s*</dependency>", "\n    </dependency>")
-
-        --        local formatted_dependency = dependency:gsub("\n", "\n    "):gsub("    </dependency>", "  </dependency>")
-        --        local formatted_dependency = dependency:gsub("\n", "\n  "):gsub("  </dependency>", "  </dependency>")
         table.insert(lines, insert_index, "    " .. formatted_dependency)
       else
         vim.notify("No </dependencies> tag found in pom.xml", vim.log.levels.ERROR)
