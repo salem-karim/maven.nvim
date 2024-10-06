@@ -1,13 +1,11 @@
-local maven = {}
+local maven = {} -- Inicializa a tabela maven corretamente
 local View = require("maven.view")
 local commands = require("maven.commands")
 local config = require("maven.config")
 local uv = vim.loop
 local Job = require("plenary.job")
 
-local view
-local job
-
+-- Tente carregar o módulo JSON e trate os erros
 local json_ok, json = pcall(require, "json")
 if not json_ok then
   json_ok, json = pcall(require, "dkjson")
@@ -171,6 +169,7 @@ function maven.add_dependency_to_pom(groupId, artifactId, version)
 
   vim.notify("Dependency added successfully to pom.xml!", vim.log.levels.INFO)
 end
+
 -- on create project maven
 function maven.create_project()
   local default_group_id = "com.javaexample"
@@ -277,4 +276,4 @@ function maven.kill_running_job()
   end
 end
 
-return maven
+return
