@@ -122,8 +122,8 @@ function maven.add_dependency_to_pom()
     end
   end)
 
+  -- Cria o buffer e a janela para inserir a dependência
   local buf = vim.api.nvim_create_buf(false, true)
-
   local win = vim.api.nvim_open_win(buf, true, {
     relative = "editor",
     width = 80,
@@ -134,46 +134,59 @@ function maven.add_dependency_to_pom()
     border = "rounded",
   })
 
-  -- Instrução ao usuário
+  -- Exibe a instrução no buffer
   vim.api.nvim_buf_set_lines(
     buf,
     0,
     -1,
     false,
-    { "Cole a dependência aqui e pressione enter para adicionar ao pom.xml." }
+    { "Cole a dependência aqui e pressione Enter para adicionar ao pom.xml." }
   )
 
-  vim.bo[buf].modifiable = false
+  -- Permite modificação do buffer
+  vim.bo[buf].modifiable = true
 
-  -- Mapeia o <enter> para fechar a janela e capturar o conteúdo
+  -- Remove a linha de instrução quando o usuário começa a editar
+  vim.api.nvim_buf_attach(buf, false, {
+    on_lines = function(_, _buf)
+      -- Limpa a instrução assim que algo for inserido
+      if
+        vim.api.nvim_buf_get_lines(_buf, 0, -1, false)[1]
+        ~= "Cole a dependência aqui e pressione Enter para adicionar ao pom.xml."
+      then
+        vim.api.nvim_buf_set_lines(_buf, 0, -1, false, {})
+      end
+    end,
+  })
+
+  -- Mapeia o <Enter> para capturar o conteúdo e adicionar ao pom.xml
   vim.api.nvim_buf_set_keymap(buf, "n", "<CR>", "", {
     noremap = true,
     callback = function()
-      -- Habilita 'modifiable' antes de modificar o buffer
-      vim.bo[buf].modifiable = true
-
-      -- Captura todas as linhas do buffer, incluindo a primeira
+      -- Captura todas as linhas do buffer
       local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
       local dependency = table.concat(lines, "\n")
 
+      -- Verifica se a dependência foi colada ou escrita
       if dependency == "" then
         vim.notify("No dependency provided", vim.log.levels.WARN)
         return
       end
 
       local pom_file = get_cwd() .. "/pom.xml"
-
       local pom_content = table.concat(vim.fn.readfile(pom_file), "\n")
 
       local function normalize_string(str)
         return str:gsub("%s+", " "):gsub("^%s*(.-)%s*$", "%1")
       end
 
+      -- Verifica se a dependência já existe no pom.xml
       if pom_content:find(normalize_string(dependency), 1, true) then
         vim.notify("Dependency already exists in pom.xml", vim.log.levels.INFO)
         return
       end
 
+      -- Lê o pom.xml e encontra o local de inserção
       local lines = {}
       for line in io.lines(pom_file) do
         table.insert(lines, line)
@@ -187,6 +200,7 @@ function maven.add_dependency_to_pom()
         end
       end
 
+      -- Insere a dependência no lugar correto
       if insert_index then
         table.insert(lines, insert_index, dependency)
       else
@@ -194,6 +208,7 @@ function maven.add_dependency_to_pom()
         return
       end
 
+      -- Grava as mudanças no pom.xml
       local file = io.open(pom_file, "w")
       if not file then
         vim.notify("Failed to open pom.xml for writing", vim.log.levels.ERROR)
@@ -205,8 +220,8 @@ function maven.add_dependency_to_pom()
       end
       file:close()
 
+      -- Notifica a adição e fecha a janela
       vim.notify("Dependency added to pom.xml", vim.log.levels.INFO)
-
       vim.api.nvim_win_close(win, true)
     end,
   })
