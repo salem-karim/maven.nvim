@@ -142,14 +142,14 @@ function maven.add_dependency_to_pom()
     0,
     -1,
     false,
-    { "Cole a dependência aqui e pressione <ESC> para adicionar ao pom.xml." }
+    { "Cole a dependência aqui e pressione enter para adicionar ao pom.xml." }
   )
 
   -- Define o buffer como somente leitura
   vim.bo[buf].modifiable = false
 
-  -- Mapeia o <ESC> para fechar a janela e capturar o conteúdo
-  vim.api.nvim_buf_set_keymap(buf, "n", "<ESC>", "", {
+  -- Mapeia o <enter> para fechar a janela e capturar o conteúdo
+  vim.api.nvim_buf_set_keymap(buf, "n", "<CR>", "", {
     noremap = true,
     callback = function()
       -- Torna o buffer editável para capturar as linhas
@@ -161,6 +161,9 @@ function maven.add_dependency_to_pom()
         vim.notify("No dependency provided", vim.log.levels.WARN)
         return
       end
+
+      -- Remove a linha de instrução
+      vim.api.nvim_buf_set_lines(buf, 0, 1, false, {})
 
       local pom_file = get_cwd() .. "/pom.xml"
 
