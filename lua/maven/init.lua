@@ -139,7 +139,7 @@ function maven.add_dependency_to_pom()
   -- Define o buffer como modificável
   vim.bo[buf].modifiable = true
 
-  -- Instrução ao usuário
+  -- Define a instrução ao usuário
   vim.api.nvim_buf_set_lines(
     buf,
     0,
