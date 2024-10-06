@@ -149,13 +149,16 @@ function maven.add_dependency_to_pom()
   )
 
   -- Move o cursor para a linha abaixo da mensagem
-  vim.api.nvim_win_set_cursor(win, { 1, 0 }) -- Linha 2, coluna 0
+  vim.api.nvim_win_set_cursor(win, { 2, 0 }) -- Linha 2, coluna 0
 
   -- Função para remover a mensagem de instrução
   local function remove_instruction()
     local first_line = vim.api.nvim_buf_get_lines(buf, 0, 1, false)[1]
     if first_line == "Cole a dependência aqui e pressione enter para adicionar ao pom.xml." then
-      vim.api.nvim_buf_set_lines(buf, 0, 1, false, { "" })
+      -- Remova a primeira linha do buffer
+      vim.api.nvim_buf_set_lines(buf, 0, 1, false, {})
+      -- Reposicione o cursor para a linha acima da próxima linha
+      vim.api.nvim_win_set_cursor(win, { 1, 0 }) -- Ajuste a linha conforme necessário
     end
   end
 
