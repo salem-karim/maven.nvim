@@ -7,8 +7,20 @@ local uv = vim.loop
 local view
 local job
 
-local https = require("ssl.https")
-local json = require("json")
+local https_ok, https = pcall(require, "ssl.https")
+if not https_ok then
+  vim.notify("SSL HTTPS module not found, skipping Maven search functionality", vim.log.levels.WARN)
+  return
+end
+
+local json_ok, json = pcall(require, "json")
+if not json_ok then
+  json_ok, json = pcall(require, "dkjson")
+  if not json_ok then
+    vim.notify("JSON module not found, unable to parse search results", vim.log.levels.ERROR)
+    return
+  end
+end
 
 local function has_build_file(cwd)
   return vim.fn.findfile("pom.xml", cwd) ~= ""
