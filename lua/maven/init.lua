@@ -89,54 +89,41 @@ function maven.add_dependency_to_pom()
   -- Open Maven Central for OS
   local sysname = vim.loop.os_uname().sysname
 
-  if not os_name then
-    vim.notify("Error getting OS name: " .. os_name, vim.log.levels.ERROR)
-  end
+  -- if not os_name then
+  --   vim.notify("Error getting OS name: " .. os_name, vim.log.levels.ERROR)
+  -- end
 
-  if os_name == "Linux" then
-    os.execute("xdg-open https://central.sonatype.com/ &")
-  elseif os_name == "Darwin" then
-    os.execute("open https://central.sonatype.com/ &")
-  elseif os_name == "FreeBSD" or os_name == "OpenBSD" or os_name == "NetBSD" then
-    os.execute("xdg-open https://central.sonatype.com/ &")
-  elseif os_name == "Windows_NT" then
-    os.execute("start https://central.sonatype.com/")
+  -- if os_name == "Linux" then
+  --   os.execute("xdg-open https://central.sonatype.com/ &")
+  -- elseif os_name == "Darwin" then
+  --   os.execute("open https://central.sonatype.com/ &")
+  -- elseif os_name == "FreeBSD" or os_name == "OpenBSD" or os_name == "NetBSD" then
+  --   os.execute("xdg-open https://central.sonatype.com/ &")
+  -- elseif os_name == "Windows_NT" then
+  --   os.execute("start https://central.sonatype.com/")
+  -- else
+  --   vim.notify("Unsupported operating system: " .. os_name, vim.log.levels.ERROR)
+  --   return
+  -- end
+
+  local cmdurl
+
+  if sysname == "Linux" or sysname == "FreeBSD" or sysname == "OpenBSD" then
+    cmdurl = "xdg-open https://central.sonatype.com/"
+  elseif sysname == "Darwin" then
+    cmdurl = "open "
+  elseif sysname == "Windows_NT" then
+    cmdurl = "start "
   else
-    vim.notify("Unsupported operating system: " .. os_name, vim.log.levels.ERROR)
+    print("Unsupported OS: " .. sysname)
     return
   end
 
-
-
-
-
- local cmd
-
-    if sysname == "Linux" or sysname == "FreeBSD" or sysname == "OpenBSD" then
-        cmd = "xdg-open https://central.sonatype.com/" 
-    elseif sysname == "Darwin" then
-        cmd = "open " .. url
-    elseif sysname == "Windows_NT" then
-        cmd = "start " .. url
-    else
-        print("Unsupported OS: " .. sysname)
-        return
-    end
-
-    vim.fn.termopen(cmd, {
-        on_exit = function()
-            vim.cmd('bdelete!')
-        end
-    })
-end
-
-
-
-
-
-
-
-
+  vim.fn.termopen(cmdurl, {
+    on_exit = function()
+      vim.cmd("bdelete!")
+    end,
+  })
 
   -- Verifica se o arquivo pom.xml existe
   if not has_build_file(get_cwd()) then
