@@ -162,23 +162,26 @@ function maven.add_dependency_to_pom()
       end
 
       local pom_file = get_cwd() .. "/pom.xml"
-
       local pom_content = table.concat(vim.fn.readfile(pom_file), "\n")
 
+      -- Normaliza a string para evitar erros de espaço
       local function normalize_string(str)
         return str:gsub("%s+", " "):gsub("^%s*(.-)%s*$", "%1")
       end
 
+      -- Verifica se a dependência já existe no arquivo pom.xml
       if pom_content:find(normalize_string(dependency), 1, true) then
         vim.notify("Dependency already exists in pom.xml", vim.log.levels.INFO)
         return
       end
 
+      -- Lê o conteúdo do pom.xml linha por linha
       local lines = {}
       for line in io.lines(pom_file) do
         table.insert(lines, line)
       end
 
+      -- Localiza a tag </dependencies> para inserir a nova dependência antes dela
       local insert_index = nil
       for i, line in ipairs(lines) do
         if line:find("</dependencies>") then
@@ -187,6 +190,7 @@ function maven.add_dependency_to_pom()
         end
       end
 
+      -- Se encontrar o local certo, insere a dependência
       if insert_index then
         table.insert(lines, insert_index, dependency)
       else
@@ -194,6 +198,7 @@ function maven.add_dependency_to_pom()
         return
       end
 
+      -- Grava as mudanças no pom.xml
       local file = io.open(pom_file, "w")
       if not file then
         vim.notify("Failed to open pom.xml for writing", vim.log.levels.ERROR)
@@ -205,8 +210,8 @@ function maven.add_dependency_to_pom()
       end
       file:close()
 
+      -- Notifica que a dependência foi adicionada e fecha a janela
       vim.notify("Dependency added to pom.xml", vim.log.levels.INFO)
-
       vim.api.nvim_win_close(win, true)
     end,
   })
