@@ -218,7 +218,7 @@ function maven.add_dependency_to_pom()
       end
 
       if insert_index then
-        local formatted_dependency = "  " .. dependency
+        local formatted_dependency = dependency:gsub("\n", "\n  ") -- Adiciona indentação a cada linha da dependência
         table.insert(lines, insert_index, formatted_dependency)
       else
         vim.notify("No </dependencies> tag found in pom.xml", vim.log.levels.ERROR)
