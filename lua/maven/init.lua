@@ -145,18 +145,21 @@ function maven.add_dependency_to_pom()
     0,
     -1,
     false,
-    { "Cole a dependência aqui e pressione enter para adicionar ao pom.xml." }
+    { "Cole a dependência aqui e pressione enter para adicionar ao pom.xml.", "" }
   )
+
+  -- Move o cursor para a linha abaixo da mensagem
+  vim.api.nvim_win_set_cursor(win, { 2, 0 }) -- Linha 2, coluna 0
 
   -- Define o autocmd para remover a instrução assim que o usuário começar a editar
   vim.api.nvim_buf_attach(buf, false, {
-    on_lines = function()
-      -- Remove a linha de instrução assim que algo for colado ou digitado
-      if
-        vim.api.nvim_buf_get_lines(buf, 0, 1, false)[1]
-        == "Cole a dependência aqui e pressione enter para adicionar ao pom.xml."
-      then
-        vim.api.nvim_buf_set_lines(buf, 0, 1, false, {})
+    on_lines = function(_, bufnr, _, first_line, last_line)
+      -- Remove a linha de instrução assim que o buffer for modificado
+      if first_line == 0 and last_line > 0 then
+        local lines = vim.api.nvim_buf_get_lines(bufnr, 0, 1, false)
+        if lines[1] == "Cole a dependência aqui e pressione enter para adicionar ao pom.xml." then
+          vim.api.nvim_buf_set_lines(bufnr, 0, 1, false, {})
+        end
       end
     end,
   })
@@ -165,7 +168,7 @@ function maven.add_dependency_to_pom()
   vim.api.nvim_buf_set_keymap(buf, "n", "<CR>", "", {
     noremap = true,
     callback = function()
-      -- Torna o buffer editável para capturar as linhas
+      -- Captura as linhas do buffer
       local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
       local dependency = table.concat(lines, "\n")
 
