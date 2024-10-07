@@ -87,8 +87,7 @@ end
 
 function maven.add_dependency_to_pom()
   -- Open Maven Central for OS
-  ---@diagnostic disable-next-line: undefined-field
-  local os_name = uv.os_uname().sysname
+  local os_name = vim.loop.os_uname().sysname
 
   if not os_name then
     vim.notify("Error getting OS name: " .. os_name, vim.log.levels.ERROR)
@@ -107,8 +106,7 @@ function maven.add_dependency_to_pom()
   end
 
   -- Executes the command in a non-blocking manner
-  ---@diagnostic disable-next-line: undefined-field
-  uv.spawn(cmd[1], { args = { cmd[2], cmd[3], cmd[4] } }, function(code, _)
+  vim.loop.spawn(cmd[1], { args = { cmd[2], cmd[3], cmd[4] } }, function(code, signal)
     if code ~= 0 then
       vim.notify("Failed to open URL", vim.log.levels.ERROR)
     end
@@ -146,7 +144,7 @@ function maven.add_dependency_to_pom()
   -- Function to remove the instruction message
   local function remove_instruction()
     local first_line = vim.api.nvim_buf_get_lines(buf, 0, 1, false)[1]
-    if first_line == "Paste the dependency here and press enter to add it to the pom.xml." then
+    if first_line == "Cole a dependência aqui e pressione enter para adicionar ao pom.xml." then
       -- Removes the first line from the buffer
       vim.api.nvim_buf_set_lines(buf, 0, 1, false, {})
       -- Repositions the cursor to the line above the next line
@@ -166,8 +164,8 @@ function maven.add_dependency_to_pom()
   vim.api.nvim_buf_set_keymap(buf, "n", "<CR>", "", {
     noremap = true,
     callback = function()
-      local lines_capture = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-      local dependency = table.concat(lines_capture, "\n")
+      local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+      local dependency = table.concat(lines, "\n")
 
       if dependency == "" then
         vim.notify("No dependency provided", vim.log.levels.WARN)
@@ -184,9 +182,9 @@ function maven.add_dependency_to_pom()
         return str:gsub("%s+", " "):gsub("^%s*(.-)%s*$", "%1")
       end
 
-      local function is_dependency_present(pom_content_xml, dependency_name)
-        local normalized_dependency = normalize_string(dependency_name)
-        local normalized_pom_content = normalize_string(pom_content_xml)
+      local function is_dependency_present(pom_content, dependency)
+        local normalized_dependency = normalize_string(dependency)
+        local normalized_pom_content = normalize_string(pom_content)
         return normalized_pom_content:find(normalized_dependency, 1, true) ~= nil
       end
 
@@ -303,7 +301,6 @@ end
 
 function maven.kill_running_job()
   if job and job.pid then
-    ---@diagnostic disable-next-line: undefined-field
     uv.kill(job.pid, 15)
     job = nil
   end
