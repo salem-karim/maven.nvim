@@ -87,7 +87,8 @@ end
 
 function maven.add_dependency_to_pom()
   -- Open Maven Central for OS
-  local os_name = vim.loop.os_uname().sysname
+  ---@diagnostic disable-next-line: undefined-field
+  local os_name = uv.os_uname().sysname
 
   if not os_name then
     vim.notify("Error getting OS name: " .. os_name, vim.log.levels.ERROR)
@@ -106,7 +107,8 @@ function maven.add_dependency_to_pom()
   end
 
   -- Executes the command in a non-blocking manner
-  uv.spawn(cmd[1], { args = { cmd[2], cmd[3], cmd[4] } }, function(code, signal)
+  ---@diagnostic disable-next-line: undefined-field
+  uv.spawn(cmd[1], { args = { cmd[2], cmd[3], cmd[4] } }, function(code, _)
     if code ~= 0 then
       vim.notify("Failed to open URL", vim.log.levels.ERROR)
     end
@@ -164,8 +166,8 @@ function maven.add_dependency_to_pom()
   vim.api.nvim_buf_set_keymap(buf, "n", "<CR>", "", {
     noremap = true,
     callback = function()
-      local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-      local dependency = table.concat(lines, "\n")
+      local lines_depedency = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+      local dependency = table.concat(lines_depedency, "\n")
 
       if dependency == "" then
         vim.notify("No dependency provided", vim.log.levels.WARN)
@@ -182,9 +184,9 @@ function maven.add_dependency_to_pom()
         return str:gsub("%s+", " "):gsub("^%s*(.-)%s*$", "%1")
       end
 
-      local function is_dependency_present(pom_cont, dep)
+      local function is_dependency_present(p_content, dep)
         local normalized_dependency = normalize_string(dep)
-        local normalized_pom_content = normalize_string(pom_cont)
+        local normalized_pom_content = normalize_string(p_content)
         return normalized_pom_content:find(normalized_dependency, 1, true) ~= nil
       end
 
@@ -301,6 +303,7 @@ end
 
 function maven.kill_running_job()
   if job and job.pid then
+    ---@diagnostic disable-next-line: undefined-field
     uv.kill(job.pid, 15)
     job = nil
   end
