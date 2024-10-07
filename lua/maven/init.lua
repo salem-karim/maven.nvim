@@ -106,7 +106,7 @@ function maven.add_dependency_to_pom()
   end
 
   -- Executes the command in a non-blocking manner
-  vim.loop.spawn(cmd[1], { args = { cmd[2], cmd[3], cmd[4] } }, function(code, signal)
+  uv.spawn(cmd[1], { args = { cmd[2], cmd[3], cmd[4] } }, function(code, signal)
     if code ~= 0 then
       vim.notify("Failed to open URL", vim.log.levels.ERROR)
     end
@@ -135,7 +135,7 @@ function maven.add_dependency_to_pom()
     0,
     -1,
     false,
-    { "Cole a dependência aqui e pressione enter para adicionar ao pom.xml.", "" }
+    { "Paste the dependency here and press enter to add it to the pom.xml.", "" }
   )
 
   -- Moves the cursor to the line below the message
@@ -182,9 +182,9 @@ function maven.add_dependency_to_pom()
         return str:gsub("%s+", " "):gsub("^%s*(.-)%s*$", "%1")
       end
 
-      local function is_dependency_present(pom_content, dependency)
-        local normalized_dependency = normalize_string(dependency)
-        local normalized_pom_content = normalize_string(pom_content)
+      local function is_dependency_present(pom_cont, dep)
+        local normalized_dependency = normalize_string(dep)
+        local normalized_pom_content = normalize_string(pom_cont)
         return normalized_pom_content:find(normalized_dependency, 1, true) ~= nil
       end
 
