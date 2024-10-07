@@ -87,22 +87,13 @@ end
 
 function maven.add_dependency_to_pom()
   -- Open Maven Central for OS
-  local os_name = vim.loop.os_uname().sysname
+  ---@diagnostic disable-next-line: undefined-field
+  local os_name = uv.os_uname().sysname
 
   if not os_name then
     vim.notify("Error getting OS name: " .. os_name, vim.log.levels.ERROR)
   end
 
-  -- if os_name == "Linux" then
-  --   os.execute("xdg-open https://central.sonatype.com/")
-  -- elseif os_name == "Darwin" then
-  --   os.execute("open https://central.sonatype.com/")
-  -- elseif os_name == "Windows_NT" then
-  --   os.execute("start https://central.sonatype.com/")
-  -- else
-  --   vim.notify("Unsupported operating system", vim.log.levels.ERROR)
-  --   return
-  -- end
   local cmd = {}
   if os_name == "Linux" or os_name == "FreeBSD" or os_name == "OpenBSD" or os_name == "NetBSD" then
     cmd = { "xdg-open", "https://central.sonatype.com/" }
@@ -115,17 +106,18 @@ function maven.add_dependency_to_pom()
     return
   end
 
-  -- Executa o comando de forma não bloqueante
-  vim.loop.spawn(cmd[1], { args = { cmd[2], cmd[3], cmd[4] } }, function(code, signal)
+  -- Executes the command in a non-blocking manner
+  ---@diagnostic disable-next-line: undefined-field
+  uv.spawn(cmd[1], { args = { cmd[2], cmd[3], cmd[4] } }, function(code, _)
     if code ~= 0 then
       vim.notify("Failed to open URL", vim.log.levels.ERROR)
     end
   end)
 
-  -- Cria um buffer
+  -- Creates a buffer
   local buf = vim.api.nvim_create_buf(false, true)
 
-  -- Abre uma janela flutuante com o buffer
+  -- Opens a floating window with the buffer
   local win = vim.api.nvim_open_win(buf, true, {
     relative = "editor",
     width = 80,
@@ -136,10 +128,10 @@ function maven.add_dependency_to_pom()
     border = "rounded",
   })
 
-  -- Define o buffer como modificável
+  -- Sets the buffer to be modifiable
   vim.bo[buf].modifiable = true
 
-  -- Define a instrução ao usuário
+  -- Sets the instruction to the user
   vim.api.nvim_buf_set_lines(
     buf,
     0,
@@ -148,64 +140,53 @@ function maven.add_dependency_to_pom()
     { "Cole a dependência aqui e pressione enter para adicionar ao pom.xml.", "" }
   )
 
-  -- Move o cursor para a linha abaixo da mensagem
+  -- Moves the cursor to the line below the message
   vim.api.nvim_win_set_cursor(win, { 2, 0 }) -- Linha 2, coluna 0
 
-  -- Função para remover a mensagem de instrução
+  -- Function to remove the instruction message
   local function remove_instruction()
     local first_line = vim.api.nvim_buf_get_lines(buf, 0, 1, false)[1]
-    if first_line == "Cole a dependência aqui e pressione enter para adicionar ao pom.xml." then
-      -- Remova a primeira linha do buffer
+    if first_line == "Paste the dependency here and press enter to add it to the pom.xml." then
+      -- Removes the first line from the buffer
       vim.api.nvim_buf_set_lines(buf, 0, 1, false, {})
-      -- Reposicione o cursor para a linha acima da próxima linha
-      vim.api.nvim_win_set_cursor(win, { 1, 0 }) -- Ajuste a linha conforme necessário
+      -- Repositions the cursor to the line above the next line
+      vim.api.nvim_win_set_cursor(win, { 1, 0 })
     end
   end
-
-  -- Adiciona um pequeno atraso antes de ativar o autocmd
+  -- Sets the autocmd to remove the instruction as soon as the user starts editing or pasting text
   vim.defer_fn(function()
-    -- Define o autocmd para remover a instrução assim que o usuário começar a editar ou colar texto
     vim.api.nvim_create_autocmd({ "TextChangedI", "TextChanged", "TextChangedP" }, {
       buffer = buf,
       callback = function()
         remove_instruction()
       end,
     })
-  end, 500) -- 500 ms de atraso antes de ativar o autocmd
-
-  -- Mapeia o <enter> para fechar a janela e capturar o conteúdo
+  end, 500)
+  -- Maps <enter> to close the window and capture the content
   vim.api.nvim_buf_set_keymap(buf, "n", "<CR>", "", {
     noremap = true,
     callback = function()
-      -- Captura as linhas do buffer
-      local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-      local dependency = table.concat(lines, "\n")
+      local lines_capture = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+      local dependency = table.concat(lines_capture, "\n")
 
       if dependency == "" then
         vim.notify("No dependency provided", vim.log.levels.WARN)
         return
       end
 
-      -- Caminho do arquivo pom.xml
       local pom_file = get_cwd() .. "/pom.xml"
 
-      -- Lê o conteúdo do arquivo pom.xml
+      -- Reads the content of the pom.xml file
       local pom_content = table.concat(vim.fn.readfile(pom_file), "\n")
 
-      -- Função para normalizar strings (remover espaços extras)
+      -- remove extra spaces
       local function normalize_string(str)
         return str:gsub("%s+", " "):gsub("^%s*(.-)%s*$", "%1")
       end
 
-      -- Verifica se a dependência já está presente no pom.xml
-      -- if pom_content:find(normalize_string(dependency), 1, true) then
-      --   vim.notify("Dependency already exists in pom.xml", vim.log.levels.INFO)
-      --   return
-      -- end
-
-      local function is_dependency_present(pom_content, dependency)
-        local normalized_dependency = normalize_string(dependency)
-        local normalized_pom_content = normalize_string(pom_content)
+      local function is_dependency_present(pom_content_xml, dependency_name)
+        local normalized_dependency = normalize_string(dependency_name)
+        local normalized_pom_content = normalize_string(pom_content_xml)
         return normalized_pom_content:find(normalized_dependency, 1, true) ~= nil
       end
 
@@ -214,7 +195,6 @@ function maven.add_dependency_to_pom()
         return
       end
 
-      -- Insere a dependência antes da tag </dependencies>
       local lines = {}
       for line in io.lines(pom_file) do
         table.insert(lines, line)
@@ -229,7 +209,7 @@ function maven.add_dependency_to_pom()
       end
 
       if insert_index then
-        -- Formata a dependência com indentação apropriada (4 espaços por nível)
+        -- Formats the dependency with appropriate indentation
         local formatted_dependency =
           dependency:gsub("\n%s*<", "\n      <"):gsub("\n%s*</dependency>", "\n    </dependency>")
         table.insert(lines, insert_index, "    " .. formatted_dependency)
@@ -238,7 +218,6 @@ function maven.add_dependency_to_pom()
         return
       end
 
-      -- Escreve as alterações de volta no pom.xml
       local file = io.open(pom_file, "w")
       if not file then
         vim.notify("Failed to open pom.xml for writing", vim.log.levels.ERROR)
@@ -252,7 +231,6 @@ function maven.add_dependency_to_pom()
 
       vim.notify("Dependency added to pom.xml", vim.log.levels.INFO)
 
-      -- Fecha a janela após salvar
       vim.api.nvim_win_close(win, true)
     end,
   })
@@ -325,6 +303,7 @@ end
 
 function maven.kill_running_job()
   if job and job.pid then
+    ---@diagnostic disable-next-line: undefined-field
     uv.kill(job.pid, 15)
     job = nil
   end
