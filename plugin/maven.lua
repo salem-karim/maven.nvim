@@ -5,6 +5,10 @@ api.nvim_create_user_command("Maven", function()
   maven.commands()
 end, {})
 
+api.nvim_create_user_command("MavenCreateProject", function()
+  maven.create_project()
+end, { nargs = 0 })
+
 api.nvim_create_user_command("MavenExec", function()
   vim.ui.input({ prompt = "Execute goal: " }, function(input)
     local command = maven.to_command(input)
