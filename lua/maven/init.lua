@@ -236,6 +236,22 @@ function maven.add_dependency_to_pom()
   })
 end
 
+local function has_required_tag_in_pom(cwd, tag, content)
+  local pom_file = cwd .. "/pom.xml"
+
+  -- Verifica se o arquivo existe
+  if vim.fn.filereadable(pom_file) == 0 then
+    return false
+  end
+
+  -- Lê o conteúdo do arquivo pom.xml
+  local pom_content = table.concat(vim.fn.readfile(pom_file), "\n")
+
+  -- Verifica se a tag com o conteúdo está presente
+  local pattern = "<" .. tag .. ">%s*" .. content .. "%s*</" .. tag .. ">"
+  return pom_content:match(pattern) ~= nil
+end
+
 function maven.execute_command(command)
   local cwd = get_cwd()
 
@@ -249,17 +265,33 @@ function maven.execute_command(command)
     return
   end
 
-  if command.cmd[1] == "create" then
-    if has_build_file(cwd) then
+  if command.cmd[1] == "create" and has_build_file(cwd) then
+    if has_required_tag_in_pom(cwd, "packaging", "pom") then
+      vim.notify("Required tag found in pom.xml. Proceeding with Maven project creation.", vim.log.levels.INFO)
+      maven.create_project()
+    else
       vim.notify(
         "there is a pom.xml file that indicates, that there is a maven project in the directory " .. cwd,
         vim.log.levels.ERROR
       )
-    else
-      maven.create_project()
+      return
     end
+  elseif command.cmd[1] == "create" then
+    maven.create_project()
     return
   end
+
+  -- if command.cmd[1] == "create" then
+  --   if has_build_file(cwd) then
+  --     vim.notify(
+  --       "there is a pom.xml file that indicates, that there is a maven project in the directory " .. cwd,
+  --       vim.log.levels.ERROR
+  --     )
+  --   else
+  --     maven.create_project()
+  --   end
+  --   return
+  -- end
 
   if command.cmd[1] == "add-repository" then
     -- Open  Maven Central
