@@ -6,6 +6,8 @@ api.nvim_create_user_command("Maven", function()
 end, {})
 
 api.nvim_create_user_command("MavenCreateProject", function()
+  maven.commands()
+
   maven.create_project()
 end, { nargs = 0 })
 
