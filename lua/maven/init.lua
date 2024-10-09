@@ -50,41 +50,6 @@ function maven.to_command(str)
   return { cmd = cmd }
 end
 
--- on create project maven
-function maven.create_project()
-  local default_group_id = "com.javaexample"
-  local default_artifact_id = "javaexample"
-  local default_archetype_id = "maven-archetype-quickstart"
-
-  local cwd = get_cwd() -- for create project
-
-  -- Prompts user for input
-  -- Checks whether the entered value is nil or empty, and applies the pattern if necessary
-  vim.ui.input({ prompt = "GroupId: (default: " .. default_group_id .. ")" }, function(groupId)
-    groupId = (groupId ~= nil and groupId ~= "") and groupId or default_group_id
-
-    vim.ui.input({ prompt = "ArtifactId: (default: " .. default_artifact_id .. ")" }, function(artifactId)
-      artifactId = (artifactId ~= nil and artifactId ~= "") and artifactId or default_artifact_id
-
-      vim.ui.input({ prompt = "ArchetypeId: (default: " .. default_archetype_id .. ")" }, function(archetypeId)
-        archetypeId = (archetypeId ~= nil and archetypeId ~= "") and archetypeId or default_archetype_id
-
-        -- Run the Maven command to create the project in the cwd directory
-        maven.execute_command({
-          cmd = {
-            "archetype:generate",
-            "-DgroupId=" .. groupId,
-            "-DartifactId=" .. artifactId,
-            "-DarchetypeArtifactId=" .. archetypeId,
-            "-DinteractiveMode=false",
-          },
-          cwd = cwd, -- Use the current directory to create the project
-        })
-      end)
-    end)
-  end)
-end
-
 function maven.add_dependency_to_pom()
   -- Open Maven Central for OS
   ---@diagnostic disable-next-line: undefined-field
@@ -331,6 +296,41 @@ function maven.execute_command(command)
   view.job = job
 
   job:start()
+end
+
+-- on create project maven
+function maven.create_project()
+  local default_group_id = "com.javaexample"
+  local default_artifact_id = "javaexample"
+  local default_archetype_id = "maven-archetype-quickstart"
+
+  local cwd = get_cwd() -- for create project
+
+  -- Prompts user for input
+  -- Checks whether the entered value is nil or empty, and applies the pattern if necessary
+  vim.ui.input({ prompt = "GroupId: (default: " .. default_group_id .. ")" }, function(groupId)
+    groupId = (groupId ~= nil and groupId ~= "") and groupId or default_group_id
+
+    vim.ui.input({ prompt = "ArtifactId: (default: " .. default_artifact_id .. ")" }, function(artifactId)
+      artifactId = (artifactId ~= nil and artifactId ~= "") and artifactId or default_artifact_id
+
+      vim.ui.input({ prompt = "ArchetypeId: (default: " .. default_archetype_id .. ")" }, function(archetypeId)
+        archetypeId = (archetypeId ~= nil and archetypeId ~= "") and archetypeId or default_archetype_id
+
+        -- Run the Maven command to create the project in the cwd directory
+        maven.execute_command({
+          cmd = {
+            "archetype:generate",
+            "-DgroupId=" .. groupId,
+            "-DartifactId=" .. artifactId,
+            "-DarchetypeArtifactId=" .. archetypeId,
+            "-DinteractiveMode=false",
+          },
+          cwd = cwd, -- Use the current directory to create the project
+        })
+      end)
+    end)
+  end)
 end
 
 function maven.kill_running_job()
