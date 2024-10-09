@@ -3,7 +3,7 @@ local View = require("maven.view")
 local commands = require("maven.commands")
 local config = require("maven.config")
 local uv = vim.loop
-local actions = require("actions.create_project")
+local actions = require("maven.actions")
 
 local view
 local job
