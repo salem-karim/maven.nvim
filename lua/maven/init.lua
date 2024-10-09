@@ -3,6 +3,7 @@ local View = require("maven.view")
 local commands = require("maven.commands")
 local config = require("maven.config")
 local uv = vim.loop
+local actions = { "maven.actions" }
 
 local view
 local job
@@ -35,8 +36,7 @@ function maven.commands()
     end,
   }, function(cmd)
     if cmd.cmd[1] == "archetype:generate" then
-      maven.create_project()
-
+      actions.create_project()
       return
     end
     maven.execute_command(cmd)
