@@ -254,6 +254,7 @@ end
 
 function maven.execute_command(command)
   local cwd = get_cwd()
+  local job = true
 
   if not command then
     vim.notify("No maven command")
@@ -276,9 +277,9 @@ function maven.execute_command(command)
       )
       return
     end
-  elseif command.cmd[1] == "archetype:generate" then
+  elseif command.cmd[1] == "archetype:generate" and job == true then
     maven.create_project()
-    command.cmd[1] = "create"
+    job = false
     return
   end
 
