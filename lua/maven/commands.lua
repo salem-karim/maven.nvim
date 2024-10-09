@@ -11,7 +11,7 @@ local commands = {
   { cmd = { "install" } },
   { cmd = { "site" } },
   { cmd = { "deploy" } },
-  { cmd = { "create" }, desc = "Create Maven Project" },
+  { cmd = { "archetype:generate" }, desc = "Create Maven Project" },
   { cmd = { "add-repository" }, desc = "Open Maven Central and add dependency" },
 }
 
