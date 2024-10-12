@@ -18,7 +18,7 @@ local commands = {
   {
     cmd = function(callback)
       actions.create_project(function(command)
-        callback(command)
+        callback({ command })
       end)
     end,
     desc = "Create Maven Project",
