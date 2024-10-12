@@ -24,14 +24,14 @@ function M.create_project(callback)
       vim.ui.input({ prompt = "GroupId: (default: " .. default_group_id .. ")" }, function(groupId)
         groupId = (groupId ~= nil and groupId ~= "") and groupId or default_group_id
 
-        local cmd = {
+        local cmd = string.format(
+          "-X archetype:generate -DgroupId=%s -DartifactId=%s -DarchetypeArtifactId=%s -DinteractiveMode=false",
+          groupId,
+          artifactId,
+          archetypeId
+        )
 
-          "archetype:generate",
-          "-DgroupId=" .. groupId,
-          "-DartifactId=" .. artifactId,
-          "-DarchetypeArtifactId=" .. archetypeId,
-          "-DinteractiveMode=false",
-        }
+        -- Envia o comando para o callback, dentro de uma tabela
         callback({ cmd = { cmd } })
       end)
     end)
