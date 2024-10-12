@@ -1,7 +1,7 @@
 local M = {}
 
 -- on create project maven
-function M.create_project()
+function M.create_project(callback)
   local default_group_id = "com.javaexample"
   local default_artifact_id = "javaexample"
   local default_archetype_id = "maven-archetype-quickstart"
@@ -22,8 +22,7 @@ function M.create_project()
           artifactId,
           archetypeId
         )
-        -- Envia o comando para o callback, dentro de uma tabela
-        return cmd
+        callback({ cmd = { cmd } })
       end)
     end)
   end)
