@@ -32,7 +32,7 @@ function M.create_project(callback)
         )
         print(vim.inspect(cmd))
         -- Envia o comando para o callback, dentro de uma tabela
-        callback(cmd)
+        callback({ cmd })
       end)
     end)
   end)
