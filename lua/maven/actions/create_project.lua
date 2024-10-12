@@ -38,7 +38,7 @@ function M.create_project(callback)
             .. "-DinteractiveMode=false",
         }
 
-        callback({ cmd = cmd, cwd = cwd })
+        callback({ cmd = cmd })
       end)
     end)
   end)

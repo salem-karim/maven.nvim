@@ -79,7 +79,9 @@ function maven.commands()
         return
       end
     elseif cmd.cmd[1] == "archetype:generate" and work == true then
-      actions.create_project()
+      actions.create_project(function(params)
+        maven.execute_command(params)
+      end)
       work = false
       return
     end
