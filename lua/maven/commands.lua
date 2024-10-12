@@ -16,8 +16,7 @@ local commands = {
   -- { cmd = { "archetype:generate" }, desc = "Create Maven Project" },
   { cmd = { "add-repository" }, desc = "Open Maven Central and add dependency" },
   {
-    cmd = { "archetype:generate" }, -- Isso precisa ser uma string ou tabela de strings
-    desc = "Create Maven Project",
+
     execute = function(callback)
       actions.create_project(function(command)
         -- O comando gerado é passado como uma string no callback
