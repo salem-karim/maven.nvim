@@ -88,7 +88,7 @@ function maven.commands()
       work = false
       return
     end
-
+    print("Generated command: " .. vim.inspect(cmd))
     maven.execute_command(cmd)
   end)
 end
