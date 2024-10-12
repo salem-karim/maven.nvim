@@ -89,7 +89,15 @@ function maven.commands()
     --   return
     -- end
     print("Generated command: " .. vim.inspect(cmd))
-    maven.execute_command(cmd)
+    --    maven.execute_command(cmd)
+
+    if type(cmd.cmd) == "function" then
+      cmd.cmd(function(params)
+        maven.execute_command(params)
+      end)
+    else
+      require("maven").execute_command(cmd)
+    end
   end)
 end
 
