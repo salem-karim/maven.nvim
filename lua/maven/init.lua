@@ -98,6 +98,9 @@ function maven.commands()
         -- Certifica-se de que params.cmd é uma tabela de strings
         if type(params.cmd) == "string" then
           params.cmd = vim.split(params.cmd, " ")
+        elseif type(params.cmd) == "table" then
+          -- Se params.cmd já for uma tabela, não há necessidade de dividir
+          vim.notify("params.cmd is already a table")
         end
         local cmd_str = table.concat(params.cmd, " ")
         vim.notify("Executing command: " .. cmd_str)
