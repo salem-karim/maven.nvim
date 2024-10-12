@@ -46,7 +46,7 @@ end
 function maven.commands()
   local prompt = "Execute maven goal (" .. vim.fn.fnamemodify(vim.fn.getcwd(), ":t") .. ")"
   local cwd = get_cwd()
-  local cmd_create = actions.create_project()
+
   local work = true
 
   vim.ui.select(commands, {
@@ -68,7 +68,8 @@ function maven.commands()
     if cmd.cmd[1] == "archetype:generate" and has_build_file(cwd) then
       if has_required_tag_in_pom(cwd, "packaging", "pom") then
         vim.notify("Required tag found in pom.xml. Proceeding with Maven project creation.", vim.log.levels.INFO)
-        print(vim.inspect(cmd))
+        local cmd_create = actions.create_project()
+        print(vim.inspect(cmd_create))
 
         maven.execute_command(cmd_create)
         work = false
