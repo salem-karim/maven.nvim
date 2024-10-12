@@ -25,7 +25,7 @@ function M.create_project(callback)
         groupId = (groupId ~= nil and groupId ~= "") and groupId or default_group_id
 
         local cmd = string.format(
-          "-X archetype:generate -DgroupId=%s -DartifactId=%s -DarchetypeArtifactId=%s -DinteractiveMode=false",
+          "archetype:generate -DgroupId=%s -DartifactId=%s -DarchetypeArtifactId=%s -DinteractiveMode=false",
           groupId,
           artifactId,
           archetypeId
