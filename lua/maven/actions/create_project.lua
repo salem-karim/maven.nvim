@@ -17,10 +17,11 @@ function M.create_project(callback)
         archetypeId = (archetypeId ~= nil and archetypeId ~= "") and archetypeId or default_archetype_id
 
         local cmd = string.format(
-          "archetype:generate -DgroupId=%s -DartifactId=%s -DarchetypeArtifactId=%s -DinteractiveMode=false",
-          groupId,
-          artifactId,
-          archetypeId
+          "archetype:generate",
+          "-DgroupId=" .. groupId,
+          "-DartifactId=" .. artifactId,
+          "-DarchetypeArtifactId=" .. archetypeId,
+          "-DinteractiveMode=false"
         )
         -- Retorna o comando para o callback
         callback({ cmd = cmd })
