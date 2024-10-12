@@ -95,10 +95,13 @@ function maven.commands()
     if type(cmd.cmd) == "function" then
       cmd.cmd(function(p)
         params = p
-        -- Certifica-se de que params.cmd é uma tabela de strings
-        if type(params.cmd) == "string" then
-          --    params.cmd = vim.split(params.cmd, " ")
+        -- Make sure params.cmd is a string table
+        local cmd_copy = params.cmd
+        if type(cmd_copy) == "string" then
+          cmd_copy = vim.split(cmd_copy, " ")
         end
+        params.cmd = cmd_copy
+
         local cmd_str = table.concat(params.cmd, " ")
         vim.notify("Executing command: " .. cmd_str)
         maven.execute_command(params)
