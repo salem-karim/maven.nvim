@@ -22,7 +22,7 @@ function M.create_project(callback)
           artifactId,
           archetypeId
         )
-        callback({ cmd = { cmd } })
+        callback(cmd)
       end)
     end)
   end)
