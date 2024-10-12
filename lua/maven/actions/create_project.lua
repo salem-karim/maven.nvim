@@ -25,7 +25,7 @@ function M.create_project(callback)
         groupId = (groupId ~= nil and groupId ~= "") and groupId or default_group_id
 
         local cmd = {
-          "mvn",
+
           "archetype:generate",
           "-DgroupId=" .. groupId,
           "-DartifactId=" .. artifactId,
