@@ -39,7 +39,6 @@ function M.create_project()
             "-DarchetypeArtifactId=" .. archetypeId,
             "-DinteractiveMode=false",
           },
-          vim.notify("Current working directory: " .. cwd),
           cwd = cwd, -- Use the current directory to create the project
         })
       end)
