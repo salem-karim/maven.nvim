@@ -22,6 +22,15 @@ function M.create_project()
       vim.ui.input({ prompt = "ArchetypeId: (default: " .. default_archetype_id .. ")" }, function(archetypeId)
         archetypeId = (archetypeId ~= nil and archetypeId ~= "") and archetypeId or default_archetype_id
 
+        vim.notify("Current working directory: " .. cwd)
+        vim.notify("Executing Maven command: " .. table.concat({
+          "archetype:generate",
+          "-DgroupId=" .. groupId,
+          "-DartifactId=" .. artifactId,
+          "-DarchetypeArtifactId=" .. archetypeId,
+          "-DinteractiveMode=false",
+        }, " "))
+
         -- Run the Maven command to create the project in the cwd directory
         require("maven").execute_command({
           cmd = {
