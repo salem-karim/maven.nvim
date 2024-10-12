@@ -7,6 +7,7 @@ function M.create_project(callback)
   local default_group_id = "com.javaexample"
   local default_artifact_id = "javaexample"
   local default_archetype_id = "maven-archetype-quickstart"
+  local generate_command = "archetype:generate"
 
   local cwd = config.options.cwd or vim.fn.getcwd()
   -- for create project
@@ -24,7 +25,7 @@ function M.create_project(callback)
         groupId = (groupId ~= nil and groupId ~= "") and groupId or default_group_id
 
         local cmd = {
-          "archetype:generate"
+          generate_command
             .. " "
             .. "-DgroupId="
             .. groupId
