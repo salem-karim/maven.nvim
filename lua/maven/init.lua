@@ -278,7 +278,7 @@ function maven.execute_command(command)
   if command.cmd[1] == "archetype:generate" and has_build_file(cwd) then
     if has_required_tag_in_pom(cwd, "packaging", "pom") then
       vim.notify("Required tag found in pom.xml. Proceeding with Maven project creation.", vim.log.levels.INFO)
-      maven.create_project()
+      actions.create_project()
     else
       vim.notify(
         "there is a pom.xml file that indicates, that there is a maven project in the directory " .. cwd,
