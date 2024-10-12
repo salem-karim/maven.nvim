@@ -23,7 +23,7 @@ function M.create_project(callback)
           archetypeId
         )
         -- Retorna o comando para o callback
-        callback(cmd)
+        callback({ cmd = cmd, desc = "Create Maven Project" })
       end)
     end)
   end)
