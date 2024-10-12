@@ -88,19 +88,26 @@ function maven.commands()
     --   work = false
     --   return
     -- end
-    print("Generated command: " .. vim.inspect(cmd))
+    -- print("Generated command: " .. vim.inspect(cmd))
     --    maven.execute_command(cmd)
 
+    local params
     if type(cmd.cmd) == "function" then
-      cmd.cmd(function(params)
+      cmd.cmd(function(p)
+        params = p
+        -- Certifica-se de que params.cmd é uma tabela de strings
+        if type(params.cmd) == "string" then
+          params.cmd = vim.split(params.cmd, " ")
+        end
+        local cmd_str = table.concat(params.cmd, " ")
+        vim.notify("Executing command: " .. cmd_str)
         maven.execute_command(params)
       end)
     else
-      require("maven").execute_command(cmd)
+      maven.execute_command(cmd)
     end
   end)
 end
-
 ---@return MavenCommandOption|nil
 function maven.to_command(str)
   if str == nil or str == "" then
