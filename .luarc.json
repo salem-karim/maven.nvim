@@ -1,5 +1,6 @@
 {
     "diagnostics.globals": [
-        "create_maven_project"
+        "create_maven_project",
+        "has_required_tag_in_pom"
     ]
 }

@@ -27,8 +27,25 @@ function maven.setup(options)
   end
 end
 
+local function has_required_tag_in_pom(cwd, tag, content)
+  local pom_file = cwd .. "/pom.xml"
+
+  -- Verifica se o arquivo existe
+  if vim.fn.filereadable(pom_file) == 0 then
+    return false
+  end
+
+  -- Lê o conteúdo do arquivo pom.xml
+  local pom_content = table.concat(vim.fn.readfile(pom_file), "\n")
+
+  -- Verifica se a tag com o conteúdo está presente
+  local pattern = "<" .. tag .. ">%s*" .. content .. "%s*</" .. tag .. ">"
+  return pom_content:match(pattern) ~= nil
+end
+
 function maven.commands()
   local prompt = "Execute maven goal (" .. vim.fn.fnamemodify(vim.fn.getcwd(), ":t") .. ")"
+  local cwd = get_cwd()
 
   vim.ui.select(commands, {
     prompt = prompt,
@@ -36,8 +53,30 @@ function maven.commands()
       return item.desc or item.cmd[1]
     end,
   }, function(cmd)
-    if not cmd or not cmd.cmd then
-      -- retern if cmd is nil
+    if not cmd then
+      vim.notify("No maven command")
+      return
+    end
+
+    if cmd.cmd[1] ~= "create" and cmd.cmd[1] ~= "archetype:generate" and not has_build_file(cwd) then
+      vim.notify("no pom.xml file found under " .. cwd, vim.log.levels.ERROR)
+      return
+    end
+
+    if cmd.cmd[1] == "archetype:generate" and has_build_file(cwd) then
+      if has_required_tag_in_pom(cwd, "packaging", "pom") then
+        vim.notify("Required tag found in pom.xml. Proceeding with Maven project creation.", vim.log.levels.INFO)
+        actions.create_project()
+      else
+        vim.notify(
+          "there is a pom.xml file that indicates, that there is a maven project in the directory " .. cwd,
+          vim.log.levels.ERROR
+        )
+        return
+      end
+    elseif cmd.cmd[1] == "archetype:generate" and job == true then
+      actions.create_project()
+      job = false
       return
     end
     if cmd.cmd[1] == "archetype:generate" then
@@ -246,51 +285,8 @@ function maven.add_dependency_to_pom()
   })
 end
 
-local function has_required_tag_in_pom(cwd, tag, content)
-  local pom_file = cwd .. "/pom.xml"
-
-  -- Verifica se o arquivo existe
-  if vim.fn.filereadable(pom_file) == 0 then
-    return false
-  end
-
-  -- Lê o conteúdo do arquivo pom.xml
-  local pom_content = table.concat(vim.fn.readfile(pom_file), "\n")
-
-  -- Verifica se a tag com o conteúdo está presente
-  local pattern = "<" .. tag .. ">%s*" .. content .. "%s*</" .. tag .. ">"
-  return pom_content:match(pattern) ~= nil
-end
-
 function maven.execute_command(command)
   local cwd = get_cwd()
-
-  if not command then
-    vim.notify("No maven command")
-    return
-  end
-
-  if command.cmd[1] ~= "create" and command.cmd[1] ~= "archetype:generate" and not has_build_file(cwd) then
-    vim.notify("no pom.xml file found under " .. cwd, vim.log.levels.ERROR)
-    return
-  end
-
-  if command.cmd[1] == "archetype:generate" and has_build_file(cwd) then
-    if has_required_tag_in_pom(cwd, "packaging", "pom") then
-      vim.notify("Required tag found in pom.xml. Proceeding with Maven project creation.", vim.log.levels.INFO)
-      actions.create_project()
-    else
-      vim.notify(
-        "there is a pom.xml file that indicates, that there is a maven project in the directory " .. cwd,
-        vim.log.levels.ERROR
-      )
-      return
-    end
-  elseif command.cmd[1] == "archetype:generate" and job == true then
-    --  maven.create_project()
-    job = false
-    return
-  end
 
   -- if command.cmd[1] == "create" then
   --   if has_build_file(cwd) then
