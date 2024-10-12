@@ -1,5 +1,5 @@
 local M = {}
-local maven = require("maven")
+--local maven = require("maven")
 local config = require("maven.config")
 
 -- on create project maven
@@ -23,7 +23,7 @@ function M.create_project()
         archetypeId = (archetypeId ~= nil and archetypeId ~= "") and archetypeId or default_archetype_id
 
         -- Run the Maven command to create the project in the cwd directory
-        maven.execute_command({
+        require("maven").execute_command({
           cmd = {
             "archetype:generate",
             "-DgroupId=" .. groupId,
