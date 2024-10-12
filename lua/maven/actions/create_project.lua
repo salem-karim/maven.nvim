@@ -22,7 +22,10 @@ function M.create_project(callback)
           artifactId,
           archetypeId
         )
-        callback(cmd)
+        local command = {
+          { cmd = { cmd }, desc = "Create Maven Project" },
+        }
+        callback(command)
       end)
     end)
   end)
