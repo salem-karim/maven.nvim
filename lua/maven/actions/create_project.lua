@@ -13,14 +13,15 @@ function M.create_project()
 
   -- Prompts user for input
   -- Checks whether the entered value is nil or empty, and applies the pattern if necessary
-  vim.ui.input({ prompt = "GroupId: (default: " .. default_group_id .. ")" }, function(groupId)
-    groupId = (groupId ~= nil and groupId ~= "") and groupId or default_group_id
+
+  vim.ui.input({ prompt = "ArchetypeId: (default: " .. default_archetype_id .. ")" }, function(archetypeId)
+    archetypeId = (archetypeId ~= nil and archetypeId ~= "") and archetypeId or default_archetype_id
 
     vim.ui.input({ prompt = "ArtifactId: (default: " .. default_artifact_id .. ")" }, function(artifactId)
       artifactId = (artifactId ~= nil and artifactId ~= "") and artifactId or default_artifact_id
 
-      vim.ui.input({ prompt = "ArchetypeId: (default: " .. default_archetype_id .. ")" }, function(archetypeId)
-        archetypeId = (archetypeId ~= nil and archetypeId ~= "") and archetypeId or default_archetype_id
+      vim.ui.input({ prompt = "GroupId: (default: " .. default_group_id .. ")" }, function(groupId)
+        groupId = (groupId ~= nil and groupId ~= "") and groupId or default_group_id
 
         vim.notify("Executing Maven command: " .. table.concat({
           "archetype:generate",
