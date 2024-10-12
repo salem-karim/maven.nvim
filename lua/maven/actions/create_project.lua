@@ -1,9 +1,9 @@
-local actions = {}
+local M = {}
 local maven = require("maven")
 local config = require("maven.config")
 
 -- on create project maven
-function actions.create_project()
+function M.create_project()
   local default_group_id = "com.javaexample"
   local default_artifact_id = "javaexample"
   local default_archetype_id = "maven-archetype-quickstart"
@@ -38,4 +38,4 @@ function actions.create_project()
   end)
 end
 
-return actions
+return M
