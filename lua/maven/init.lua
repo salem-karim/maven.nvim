@@ -61,17 +61,18 @@ function maven.commands()
         maven.execute_command(params)
       end)
     else
+      print(cmd.cmd[1])
       -- Validate before executing the generated command
-      local is_valid_cmd, message_cmd = validate.validate(cmd, cwd)
-      if not is_valid_cmd then
-        vim.notify(message_cmd, vim.log.levels.ERROR)
-        return
-      end
-      if cmd.cmd[1] == "add-dependency" then
-        return actions.add_dependency_to_pom()
-      else
-        return maven.execute_command(cmd)
-      end
+      -- local is_valid_cmd, message_cmd = validate.validate(cmd, cwd)
+      -- if not is_valid_cmd then
+      --   vim.notify(message_cmd, vim.log.levels.ERROR)
+      --   return
+      -- end
+      -- if cmd.cmd[1] == "add-dependency" then
+      --   return actions.add_dependency_to_pom()
+      -- else
+      --   return maven.execute_command(cmd)
+      -- end
     end
   end)
 end
