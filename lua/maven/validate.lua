@@ -22,8 +22,7 @@ end
 -- validation to check conditions before executing the command
 function M.validate(cmd, cwd)
   if type(cmd.cmd) ~= "table" or not cmd.cmd[1] then
-    --  return false, "Invalid command structure."
-    print(cmd.cmd[1])
+    return false, "Invalid command structure."
   end
 
   if cmd.cmd[1] == "add-dependency" then
