@@ -67,7 +67,7 @@ function maven.commands()
         return
       end
 
-      maven.execute_command(cmd)
+      --  maven.execute_command(cmd)
     end
   end)
 end
