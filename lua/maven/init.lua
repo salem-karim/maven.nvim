@@ -50,13 +50,13 @@ function maven.commands()
         params.cmd = cmd_copy
 
         -- Validate before executing the generated command
-        local is_valid_params, message_params = validate.validate(params, cwd)
+        local is_valid_params, message_params = validate.validate(params or cmd, cwd)
         if not is_valid_params then
           vim.notify(message_params, vim.log.levels.ERROR)
           return
         end
 
-        local cmd_str = table.concat(params.cmd, " ")
+        local cmd_str = table.concat(params.cmd or cmd.cmd, " ")
         vim.notify("Executing command: " .. cmd_str)
         -- maven.execute_command(params)
         maven.execute_command(params and params or cmd)
