@@ -62,12 +62,12 @@ function maven.commands()
     end
 
     -- Valida o comando antes de continuar
-    local is_valid, message = validate.validate(cmd, cwd)
+    --local is_valid, message = validate.validate(cmd, cwd)
 
-    if not is_valid then
-      vim.notify(message, vim.log.levels.ERROR)
-      return -- Interrompe a execução se a validação falhar
-    end
+    -- if not is_valid then
+    --   vim.notify(message, vim.log.levels.ERROR)
+    --   return -- Interrompe a execução se a validação falhar
+    -- end
 
     -- if cmd.cmd[1] ~= "create" and cmd.cmd[1] ~= "archetype:generate" and not has_build_file(cwd) then
     --   vim.notify("no pom.xml file found under " .. cwd, vim.log.levels.ERROR)
