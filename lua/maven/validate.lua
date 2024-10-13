@@ -49,7 +49,7 @@ function M.validate(cmd, cwd)
     end
   end
 
-  if cmd.cmd[1] == "add-repository" then
+  if cmd.cmd[1] == "add_dependency_to_pom" then
     return true, "Proceeding to add-repository."
   end
 
