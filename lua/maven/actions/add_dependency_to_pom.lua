@@ -1,10 +1,12 @@
 local M = {}
 
 local utils = require("maven.utils")
+local config = require("maven.config")
 
 function M.add_dependency_to_pom()
   -- Function that defines the command to open Maven Central according to the OS
   local function get_open_command(os_name)
+    local url = config.options.maven_central_url
     if os_name == "Linux" or os_name == "FreeBSD" or os_name == "OpenBSD" or os_name == "NetBSD" then
       return { "xdg-open", "https://central.sonatype.com/" }, nil
     elseif os_name == "Darwin" then
