@@ -25,8 +25,8 @@ local function has_required_tag_in_pom(cwd, tag, content)
 end
 
 -- Função de validação para verificar as condições antes de executar o comando
-function M.validate(cmd)
-  local cwd = get_cwd() -- Obtenha o diretório de trabalho atual uma única vez
+function M.validate(cmd, cwd)
+  -- local cwd = get_cwd() -- Obtenha o diretório de trabalho atual uma única vez
   if type(cmd.cmd) ~= "table" or not cmd.cmd[1] then
     return false, "Invalid command structure."
   end

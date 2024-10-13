@@ -61,45 +61,6 @@ function maven.commands()
       return
     end
 
-    -- Valida o comando antes de continuar
-    --local is_valid, message = validate.validate(cmd, cwd)
-
-    -- if not is_valid then
-    --   vim.notify(message, vim.log.levels.ERROR)
-    --   return -- Interrompe a execução se a validação falhar
-    -- end
-
-    -- if cmd.cmd[1] ~= "create" and cmd.cmd[1] ~= "archetype:generate" and not has_build_file(cwd) then
-    --   vim.notify("no pom.xml file found under " .. cwd, vim.log.levels.ERROR)
-    --   return
-    -- end
-    --
-    -- if cmd.cmd[1] == "archetype:generate" and has_build_file(cwd) then
-    --   if has_required_tag_in_pom(cwd, "packaging", "pom") then
-    --     vim.notify("Required tag found in pom.xml. Proceeding with Maven project creation.", vim.log.levels.INFO)
-    --     actions.create_project(function(cmd_create)
-    --       print("Generated command: " .. vim.inspect(cmd_create)) -- Verifica o retorno
-    --       maven.execute_command(cmd_create) -- Tenta executar o comando
-    --     end)
-    --     work = false
-    --   else
-    --     vim.notify(
-    --       "there is a pom.xml file that indicates, that there is a maven project in the directory " .. cwd,
-    --       vim.log.levels.ERROR
-    --     )
-    --     return
-    --   end
-    -- elseif cmd.cmd[1] == "archetype:generate" and work == true then
-    --   actions.create_project(function(cmd_create)
-    --     print("Generated command: " .. vim.inspect(cmd_create)) -- Verifica o retorno
-    --     maven.execute_command(cmd_create) -- Tenta executar o comando
-    --   end)
-    --   work = false
-    --   return
-    -- end
-    -- print("Generated command: " .. vim.inspect(cmd))
-    --    maven.execute_command(cmd)
-
     local params
     if type(cmd.cmd) == "function" then
       cmd.cmd(function(p)
@@ -111,11 +72,11 @@ function maven.commands()
         end
         params.cmd = cmd_copy
 
-        -- Valida antes de executar o comando gerado
+        -- Validate before executing the generated command
         local is_valid_params, message_params = validate.validate(params, cwd)
         if not is_valid_params then
           vim.notify(message_params, vim.log.levels.ERROR)
-          return -- Interrompe a execução se a validação falhar
+          return
         end
 
         local cmd_str = table.concat(params.cmd, " ")
@@ -127,7 +88,7 @@ function maven.commands()
       local is_valid_cmd, message_cmd = validate.validate(cmd, cwd)
       if not is_valid_cmd then
         vim.notify(message_cmd, vim.log.levels.ERROR)
-        return -- Interrompe a execução se a validação falhar
+        return
       end
 
       maven.execute_command(cmd)
@@ -145,41 +106,6 @@ function maven.to_command(str)
   end
   return { cmd = cmd }
 end
-
--- on create project maven
--- function maven.create_project()
---   local default_group_id = "com.javaexample"
---   local default_artifact_id = "javaexample"
---   local default_archetype_id = "maven-archetype-quickstart"
---
---   local cwd = get_cwd() -- for create project
---
---   -- Prompts user for input
---   -- Checks whether the entered value is nil or empty, and applies the pattern if necessary
---   vim.ui.input({ prompt = "GroupId: (default: " .. default_group_id .. ")" }, function(groupId)
---     groupId = (groupId ~= nil and groupId ~= "") and groupId or default_group_id
---
---     vim.ui.input({ prompt = "ArtifactId: (default: " .. default_artifact_id .. ")" }, function(artifactId)
---       artifactId = (artifactId ~= nil and artifactId ~= "") and artifactId or default_artifact_id
---
---       vim.ui.input({ prompt = "ArchetypeId: (default: " .. default_archetype_id .. ")" }, function(archetypeId)
---         archetypeId = (archetypeId ~= nil and archetypeId ~= "") and archetypeId or default_archetype_id
---
---         -- Run the Maven command to create the project in the cwd directory
---         maven.execute_command({
---           cmd = {
---             "archetype:generate",
---             "-DgroupId=" .. groupId,
---             "-DartifactId=" .. artifactId,
---             "-DarchetypeArtifactId=" .. archetypeId,
---             "-DinteractiveMode=false",
---           },
---           cwd = cwd, -- Use the current directory to create the project
---         })
---       end)
---     end)
---   end)
--- end
 
 function maven.add_dependency_to_pom()
   -- Open Maven Central for OS
@@ -334,18 +260,6 @@ end
 
 function maven.execute_command(command)
   local cwd = get_cwd()
-
-  -- if command.cmd[1] == "create" then
-  --   if has_build_file(cwd) then
-  --     vim.notify(
-  --       "there is a pom.xml file that indicates, that there is a maven project in the directory " .. cwd,
-  --       vim.log.levels.ERROR
-  --     )
-  --   else
-  --     maven.create_project()
-  --   end
-  --   return
-  -- end
 
   if command.cmd[1] == "add-repository" then
     -- Open  Maven Central
