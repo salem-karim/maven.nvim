@@ -6,6 +6,10 @@ end
 
 -- Função de validação para verificar as condições antes de executar o comando
 function M.validate(cmd, cwd)
+  if type(cmd.cmd) ~= "table" or not cmd.cmd[1] then
+    return false, "Invalid command structure."
+  end
+
   if cmd.cmd[1] ~= "create" and cmd.cmd[1] ~= "archetype:generate" and not has_build_file(cwd) then
     return false, "No pom.xml file found under " .. cwd
   end
@@ -28,5 +32,4 @@ function M.validate(cmd, cwd)
   -- Caso contrário, permite a execução do comando Maven normalmente
   return true, "Command is valid and can be executed."
 end
-
 return M
