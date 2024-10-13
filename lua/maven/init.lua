@@ -57,7 +57,7 @@ function maven.commands()
 
         local cmd_str = table.concat(params.cmd, " ")
         vim.notify("Executing command: " .. cmd_str)
-        maven.execute_command(params)
+        --        maven.execute_command(params)
       end)
     else
       -- Validate before executing the generated command
