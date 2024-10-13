@@ -1,6 +1,6 @@
 local M = {}
 
--- Verifica se existe um arquivo pom.xml no diretório
+-- Checks if there is a pom.xml file in the directory
 local function has_build_file(cwd)
   return vim.fn.findfile("pom.xml", cwd) ~= ""
 end

@@ -15,7 +15,7 @@ local defaults = {
 }
 
 ---@type MavenOptions
-M.options = {}
+M.options = vim.tbl_deep_extend("force", {}, defaults)
 ---@return MavenOptions
 
 function M.setup(options)

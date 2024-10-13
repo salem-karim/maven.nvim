@@ -1,6 +1,6 @@
 local M = {}
 
--- Função para abrir o site do Maven Central
+-- Function to open the Maven Central website
 function M.open_maven_central(get_open_command)
   ---@diagnostic disable-next-line: undefined-field
   local os_name = vim.loop.os_uname().sysname
@@ -11,7 +11,7 @@ function M.open_maven_central(get_open_command)
     return
   end
 
-  -- Executa o comando em modo não bloqueante
+  -- Execute the command in non-blocking mode
   ---@diagnostic disable-next-line: undefined-field
   vim.loop.spawn(cmd[1], { args = { cmd[2], cmd[3], cmd[4] } }, function(code, _)
     if code ~= 0 then

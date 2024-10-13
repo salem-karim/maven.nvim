@@ -3,7 +3,7 @@ local M = {}
 local utils = require("maven.utils")
 
 function M.add_dependency_to_pom()
-  -- Função que define o comando para abrir o Maven Central de acordo com o SO
+  -- Function that defines the command to open Maven Central according to the OS
   local function get_open_command(os_name)
     if os_name == "Linux" or os_name == "FreeBSD" or os_name == "OpenBSD" or os_name == "NetBSD" then
       return { "xdg-open", "https://central.sonatype.com/" }, nil
@@ -16,19 +16,15 @@ function M.add_dependency_to_pom()
     end
   end
 
-  -- Abre o site do Maven Central
   utils.open_maven_central(get_open_command)
 
-  -- Cria a janela flutuante
   local buf, win = utils.create_floating_window()
 
-  -- Função para remover a mensagem de instrução
   local function remove_instruction()
-    -- utils.create_floating_window.remove_instruction(buf, win)
     utils.remove_instruction(buf, win)
   end
 
-  -- Configura o autocmd para remover a mensagem de instrução quando o usuário começar a digitar
+  -- Function to remove instruction message
   vim.defer_fn(function()
     vim.api.nvim_create_autocmd({ "TextChangedI", "TextChanged", "TextChangedP" }, {
       buffer = buf,
@@ -38,7 +34,7 @@ function M.add_dependency_to_pom()
     })
   end, 500)
 
-  -- Mapeia <enter> para fechar a janela e capturar o conteúdo
+  -- Maps <enter> to close the window and capture the content
   vim.api.nvim_buf_set_keymap(buf, "n", "<CR>", "", {
     noremap = true,
     callback = function()
@@ -56,15 +52,14 @@ function M.add_dependency_to_pom()
 
       local pom_file = get_cwd() .. "/pom.xml"
 
-      -- Lê o conteúdo do pom.xml
+      -- Read the contents of pom.xml
       local pom_content = table.concat(vim.fn.readfile(pom_file), "\n")
 
-      -- Função para normalizar as strings
       local function normalize_string(str)
         return str:gsub("%s+", " "):gsub("^%s*(.-)%s*$", "%1")
       end
 
-      -- Função para verificar se a dependência já está presente
+      -- Function to check if the dependency is already present
       local function is_dependency_present(p_content, dep)
         local normalized_dependency = normalize_string(dep)
         local normalized_pom_content = normalize_string(p_content)
