@@ -2,6 +2,7 @@ local maven = {}
 local View = require("maven.view")
 local commands = require("maven.commands")
 local config = require("maven.config")
+local validate = require("maven.validate")
 local uv = vim.loop
 
 local actions = require("maven.actions")
@@ -60,6 +61,14 @@ function maven.commands()
       return
     end
 
+    -- Valida o comando antes de continuar
+    local is_valid, message = validate.validate(cmd, cwd)
+
+    if not is_valid then
+      vim.notify(message, vim.log.levels.ERROR)
+      return -- Interrompe a execução se a validação falhar
+    end
+
     -- if cmd.cmd[1] ~= "create" and cmd.cmd[1] ~= "archetype:generate" and not has_build_file(cwd) then
     --   vim.notify("no pom.xml file found under " .. cwd, vim.log.levels.ERROR)
     --   return
@@ -102,11 +111,25 @@ function maven.commands()
         end
         params.cmd = cmd_copy
 
+        -- Valida antes de executar o comando gerado
+        local is_valid_params, message_params = validate.validate(params, cwd)
+        if not is_valid_params then
+          vim.notify(message_params, vim.log.levels.ERROR)
+          return -- Interrompe a execução se a validação falhar
+        end
+
         local cmd_str = table.concat(params.cmd, " ")
         vim.notify("Executing command: " .. cmd_str)
         maven.execute_command(params)
       end)
     else
+      -- Valida antes de executar o comando gerado
+      local is_valid_cmd, message_cmd = validate.validate(cmd, cwd)
+      if not is_valid_cmd then
+        vim.notify(message_cmd, vim.log.levels.ERROR)
+        return -- Interrompe a execução se a validação falhar
+      end
+
       maven.execute_command(cmd)
     end
   end)
