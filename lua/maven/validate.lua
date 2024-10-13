@@ -48,6 +48,11 @@ function M.validate(cmd, cwd)
       return true, "No existing pom.xml found. Proceeding to create a new Maven project."
     end
   end
+
+  if cmd.cmd[1] == "add-repository" then
+    return true, "Proceeding to add-repository."
+  end
+
   -- Caso contrário, permite a execução do comando Maven normalmente
   return true, "Command is valid and can be executed."
 end
