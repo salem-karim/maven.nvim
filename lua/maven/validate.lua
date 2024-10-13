@@ -25,7 +25,7 @@ function M.validate(cmd, cwd)
     return false, "Invalid command structure."
   end
 
-  if cmd.cmd[1] == "add_dependency_to_pom" then
+  if cmd.cmd[1] == "actions.add_dependency_to_pom" then
     if not has_build_file then
       return false, "No pom.xml file found under " .. cwd
     else
