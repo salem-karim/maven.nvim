@@ -13,7 +13,7 @@ local defaults = {
   cwd = nil, -- work directory, default to `vim.fn.getcwd()`
   settings = nil, -- specify the settings file or use the default settings
   commands = nil, -- add custom goals to the command list
-  maven_central_url = nil, -- "https://central.sonatype.com/", -- https://mvnrepository.com/repos/central
+  maven_central_url = "https://central.sonatype.com/", -- https://mvnrepository.com/repos/central
 }
 
 ---@type MavenOptions

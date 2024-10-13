@@ -8,11 +8,11 @@ function M.add_dependency_to_pom()
   local function get_open_command(os_name)
     local url = config.options.maven_central_url
     if os_name == "Linux" or os_name == "FreeBSD" or os_name == "OpenBSD" or os_name == "NetBSD" then
-      return { "xdg-open", "https://central.sonatype.com/" }, nil
+      return { "xdg-open", url }, nil
     elseif os_name == "Darwin" then
-      return { "open", "https://central.sonatype.com/" }, nil
+      return { "open", url }, nil
     elseif os_name == "Windows_NT" then
-      return { "cmd.exe", "/C", "start", "https://central.sonatype.com/" }, nil
+      return { "cmd.exe", "/C", "start", url }, nil
     else
       return nil, "Unsupported OS"
     end
