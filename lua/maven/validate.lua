@@ -25,6 +25,14 @@ function M.validate(cmd, cwd)
     return false, "Invalid command structure."
   end
 
+  if cmd.cmd[1] == "add_dependency_to_pom" then
+    if not has_build_file then
+      return false, "No pom.xml file found under " .. cwd
+    else
+      return true, "Proceeding to add dependency to pom.xml."
+    end
+  end
+
   if cmd.cmd[1] ~= "create" and cmd.cmd[1] ~= "archetype:generate" and not has_build_file(cwd) then
     return false, "No pom.xml file found under " .. cwd
   end
@@ -39,10 +47,6 @@ function M.validate(cmd, cwd)
     else
       return true, "No existing pom.xml found. Proceeding to create a new Maven project."
     end
-  end
-
-  if cmd.cmd[1] == "add_dependency_to_pom" then
-    return true, "Proceeding to add-repository."
   end
 
   return true, "Command is valid and can be executed."
