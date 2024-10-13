@@ -1,10 +1,5 @@
 local M = {}
 
--- Função para obter o diretório de trabalho atual
-local function get_cwd()
-  return require("maven.config").options.cwd or vim.fn.getcwd()
-end
-
 -- Verifica se existe um arquivo pom.xml no diretório
 local function has_build_file(cwd)
   return vim.fn.findfile("pom.xml", cwd) ~= ""
@@ -26,7 +21,6 @@ end
 
 -- Função de validação para verificar as condições antes de executar o comando
 function M.validate(cmd, cwd)
-  -- local cwd = get_cwd() -- Obtenha o diretório de trabalho atual uma única vez
   if type(cmd.cmd) ~= "table" or not cmd.cmd[1] then
     return false, "Invalid command structure."
   end

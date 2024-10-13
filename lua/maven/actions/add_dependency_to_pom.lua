@@ -89,7 +89,12 @@ function M.add_dependency_to_pom()
         return
       end
 
-      local pom_file = require("maven").get_cwd() .. "/pom.xml"
+      -- Função para obter o diretório de trabalho atual
+      local function get_cwd()
+        return require("maven.config").options.cwd or vim.fn.getcwd()
+      end
+
+      local pom_file = get_cwd() .. "/pom.xml"
 
       -- Reads the content of the pom.xml file
       local pom_content = table.concat(vim.fn.readfile(pom_file), "\n")
