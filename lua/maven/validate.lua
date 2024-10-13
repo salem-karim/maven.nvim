@@ -25,15 +25,15 @@ function M.validate(cmd, cwd)
     return false, "Invalid command structure."
   end
 
-  if cmd.cmd[1] == "actions.add_dependency_to_pom" then
+  if cmd.cmd[1] == "add-dependency" then
     if not has_build_file then
       return false, "No pom.xml file found under " .. cwd
     else
       return true, "Proceeding to add dependency to pom.xml."
     end
   end
-  print(cmd.cmd[1])
-  if cmd.cmd[1] ~= "create" and cmd.cmd[1] ~= "archetype:generate" and not has_build_file(cwd) then
+
+  if cmd.cmd[1] ~= "archetype:generate" and not has_build_file(cwd) then
     return false, "No pom.xml file found under " .. cwd
   end
   if cmd.cmd[1] == "archetype:generate" then

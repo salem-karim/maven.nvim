@@ -3,6 +3,7 @@ local View = require("maven.view")
 local commands = require("maven.commands")
 local config = require("maven.config")
 local validate = require("maven.validate")
+local actions = require("maven.actions")
 local uv = vim.loop
 
 local view
@@ -57,7 +58,7 @@ function maven.commands()
 
         local cmd_str = table.concat(params.cmd, " ")
         vim.notify("Executing command: " .. cmd_str)
-        --        maven.execute_command(params)
+        maven.execute_command(params)
       end)
     else
       -- Validate before executing the generated command
@@ -66,8 +67,11 @@ function maven.commands()
         vim.notify(message_cmd, vim.log.levels.ERROR)
         return
       end
-
-      --  maven.execute_command(cmd)
+      if cmd.cmd[1] == "add-dependency" then
+        return actions.add_dependency_to_pom()
+      else
+        return maven.execute_command(cmd)
+      end
     end
   end)
 end
