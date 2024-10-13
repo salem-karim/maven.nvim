@@ -11,6 +11,7 @@ local function has_build_file(cwd)
 end
 
 -- Verifica se uma tag com conteúdo específico está presente no pom.xml
+
 local function has_required_tag_in_pom(cwd, tag, content)
   local pom_file = cwd .. "/pom.xml"
   -- Verifica se o arquivo existe
@@ -20,7 +21,7 @@ local function has_required_tag_in_pom(cwd, tag, content)
   -- Lê o conteúdo do arquivo pom.xml
   local pom_content = table.concat(vim.fn.readfile(pom_file), "\n")
   -- Verifica se a tag com o conteúdo está presente
-  local pattern = "<" .. tag .. ">%s*" .. content:gsub("%s+", "%%s*") .. "%s*</" .. tag .. ">"
+  local pattern = "<" .. tag .. ">%s*" .. content .. "%s*</" .. tag .. ">"
   return pom_content:match(pattern) ~= nil
 end
 
@@ -37,6 +38,7 @@ function M.validate(cmd)
   if cmd.cmd[1] == "archetype:generate" then
     -- Se houver um arquivo pom.xml no diretório
     if has_build_file(cwd) then
+      print(cwd)
       if has_required_tag_in_pom(cwd, "packaging", "pom") then
         return true, "Required tag found in pom.xml. Proceeding with Maven multi-module project creation."
       else
