@@ -70,7 +70,7 @@ function maven.commands()
       if cmd.cmd[1] == "add-dependency" then
         return actions.add_dependency_to_pom()
       else
-        return maven.execute_command(cmd)
+        --   return maven.execute_command(cmd)
       end
     end
   end)
