@@ -4,6 +4,22 @@ local function has_build_file(cwd)
   return vim.fn.findfile("pom.xml", cwd) ~= ""
 end
 
+local function has_required_tag_in_pom(cwd, tag, content)
+  local pom_file = cwd .. "/pom.xml"
+
+  -- Verifica se o arquivo existe
+  if vim.fn.filereadable(pom_file) == 0 then
+    return false
+  end
+
+  -- Lê o conteúdo do arquivo pom.xml
+  local pom_content = table.concat(vim.fn.readfile(pom_file), "\n")
+
+  -- Verifica se a tag com o conteúdo está presente
+  local pattern = "<" .. tag .. ">%s*" .. content .. "%s*</" .. tag .. ">"
+  return pom_content:match(pattern) ~= nil
+end
+
 -- Função de validação para verificar as condições antes de executar o comando
 function M.validate(cmd, cwd)
   if type(cmd.cmd) ~= "table" or not cmd.cmd[1] then
