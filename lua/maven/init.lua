@@ -47,7 +47,7 @@ function maven.commands()
           cmd_copy = vim.split(cmd_copy, " ")
         end
         params.cmd = cmd_copy
-        print(vim.inspect(params.cmd))
+
         -- Validate before executing the generated command
         local is_valid_params, message_params = validate.validate(params, cwd)
         if not is_valid_params then
