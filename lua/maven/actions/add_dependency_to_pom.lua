@@ -78,9 +78,40 @@ function M.add_dependency_to_pom()
         table.insert(lines, line)
       end
 
+      -- Function to check if line contains any tag in the tags table
+      local function is_not_under_project(line, tags)
+        for _, tag in ipairs(tags) do
+          if line:find(tag) then
+            return true
+          end
+        end
+        return false
+      end
+
+      local tags = {
+        "<dependencyManagement>",
+        "<profile>",
+        "<plugin>"
+      }
+      local end_tags = {
+        "</dependencyManagement>",
+        "</profile>",
+        "</plugin>"
+      }
+
       local insert_index = nil
+      local in_ignored_section = false
+
       for i, line in ipairs(lines) do
-        if line:find("</dependencies>") then
+        -- Check for start of sections to ignore
+        if is_not_under_project(line, tags) then
+          in_ignored_section = true
+        elseif is_not_under_project(line, end_tags) then
+          in_ignored_section = false
+        end
+
+        -- Look for </dependencies> only if not within ignored sections
+        if not in_ignored_section and line:find("</dependencies>") then
           insert_index = i
           break
         end
@@ -88,7 +119,7 @@ function M.add_dependency_to_pom()
 
       if insert_index then
         local formatted_dependency =
-          dependency:gsub("\n%s*<", "\n      <"):gsub("\n%s*</dependency>", "\n    </dependency>")
+            dependency:gsub("\n%s*<", "\n      <"):gsub("\n%s*</dependency>", "\n    </dependency>")
         table.insert(lines, insert_index, "    " .. formatted_dependency)
       else
         vim.notify("No </dependencies> tag found in pom.xml", vim.log.levels.ERROR)
