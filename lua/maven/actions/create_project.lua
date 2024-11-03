@@ -5,6 +5,8 @@ function M.create_project(callback)
   local default_artifact_id = "javaexample"
   local default_archetype_id = "maven-archetype-quickstart"
   local default_version = "1.5"
+  local available_versions =
+  "Available versions: \n 1.0-1.1 (Basic JUnit 4)\n 1.3-1.4 (Includes maven-plugins, newer JUnit4 version) \n 1.5 - Latest version (JUnit 5, Java 17)"
 
   -- Prompts user for input
   vim.ui.input({ prompt = "GroupId: (default: " .. default_group_id .. ")" }, function(groupId)
@@ -19,6 +21,7 @@ function M.create_project(callback)
         -- Check if it's the quickstart archetype
         if archetypeId == "maven-archetype-quickstart" then
           -- Show available versions and prompt for version
+          vim.notify(available_versions)
           vim.ui.input({ prompt = "Version (default: " .. default_version .. "): " }, function(version)
             version = (version ~= nil and version ~= "") and version or default_version
 
